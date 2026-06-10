@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DYL Method | Cause vs. Symptom Sort</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --soil: #2C1A0E;
+    --bark: #4A2E1A;
+    --amber: #C8793A;
+    --gold: #E8A84A;
+    --cream: #F9F3EA;
+    --moss: #3D5A3E;
+    --moss-light: #5A7F5B;
+    --clay: #D4A574;
+    --fog: #F0E8DC;
+    --text-light: #9A7358;
+    --red-soft: #8B3A3A;
+    --red-border: #B85555;
+    --blue-soft: #2A4A6B;
+    --blue-border: #4A7AAB;
+    --purple-soft: #4A2A6B;
+    --purple-border: #7A5AAB;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--soil);
+    font-family: 'Inter', sans-serif;
+    color: var(--cream);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--bark);
+    border-bottom: 2px solid var(--amber);
+    padding: 28px 24px 22px;
+    text-align: center;
+  }
+
+  .ministry-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 5vw, 36px);
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .header h1 span { color: var(--gold); }
+
+  .header-sub {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--clay);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── INSTRUCTIONS ── */
+  .instructions {
+    background: var(--bark);
+    border: 1px solid var(--amber);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 22px auto 0;
+    max-width: 700px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .instructions p {
+    font-size: 13px;
+    color: var(--fog);
+    line-height: 1.7;
+  }
+
+  .instructions strong { color: var(--gold); }
+
+  /* ── SCORE BAR ── */
+  .score-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 700px;
+    margin: 18px auto 0;
+    padding: 0 16px;
+  }
+
+  .score-pill {
+    background: var(--bark);
+    border: 1px solid rgba(200,121,58,0.3);
+    border-radius: 99px;
+    padding: 7px 16px;
+    font-size: 12px;
+    color: var(--clay);
+    font-weight: 500;
+  }
+
+  .score-pill span {
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  .btn-check {
+    background: linear-gradient(135deg, var(--amber), var(--gold));
+    border: none;
+    border-radius: 8px;
+    padding: 10px 22px;
+    color: var(--soil);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .btn-check:hover { opacity: 0.88; }
+  .btn-check:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* ── MAIN LAYOUT ── */
+  .game-wrap {
+    max-width: 700px;
+    margin: 22px auto 0;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── CARD DECK ── */
+  .deck-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 12px;
+  }
+
+  .deck {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: 54px;
+  }
+
+  /* ── DRAG CARD ── */
+  .card {
+    background: var(--bark);
+    border: 1.5px solid rgba(200,121,58,0.35);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--fog);
+    cursor: grab;
+    user-select: none;
+    transition: border-color 0.15s, transform 0.15s, opacity 0.15s;
+    touch-action: none;
+  }
+
+  .card:hover { border-color: var(--amber); color: var(--cream); }
+  .card.dragging { opacity: 0.45; transform: scale(0.96); cursor: grabbing; }
+  .card.correct { border-color: var(--moss-light); background: rgba(61,90,62,0.3); color: #A8D4A8; cursor: default; }
+  .card.incorrect { border-color: var(--red-border); background: rgba(139,58,58,0.25); color: #E8A0A0; }
+  .card.revealed-correct { border-color: var(--moss-light); background: rgba(61,90,62,0.2); color: #A8D4A8; cursor: default; }
+
+  /* ── DROP ZONES ── */
+  .zones-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 500px) {
+    .zones-grid { grid-template-columns: 1fr; }
+  }
+
+  .zone {
+    background: var(--bark);
+    border: 1.5px dashed rgba(200,121,58,0.3);
+    border-radius: 10px;
+    padding: 14px;
+    min-height: 120px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .zone.drag-over {
+    border-color: var(--gold);
+    background: rgba(232,168,74,0.07);
+  }
+
+  .zone-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .zone-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .zone[data-zone="cause"] .zone-icon { background: rgba(139,58,58,0.35); }
+  .zone[data-zone="effect"] .zone-icon { background: rgba(200,121,58,0.25); }
+  .zone[data-zone="elimination"] .zone-icon { background: rgba(61,90,62,0.35); }
+  .zone[data-zone="warning"] .zone-icon { background: rgba(74,42,107,0.35); }
+
+  .zone-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .zone[data-zone="cause"] .zone-title { color: #E8A0A0; }
+  .zone[data-zone="effect"] .zone-title { color: var(--gold); }
+  .zone[data-zone="elimination"] .zone-title { color: #A8D4A8; }
+  .zone[data-zone="warning"] .zone-title { color: #C0A8E8; }
+
+  .zone-desc {
+    font-size: 11px;
+    color: var(--text-light);
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .zone-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 36px;
+  }
+
+  /* ── RESULTS PANEL ── */
+  .results-panel {
+    background: var(--bark);
+    border: 1px solid var(--amber);
+    border-radius: 12px;
+    padding: 28px 22px;
+    display: none;
+    animation: fadeIn 0.35s ease;
+    margin-top: 8px;
+  }
+
+  .results-panel.show { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .results-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 12px;
+  }
+
+  .results-score-big {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 6vw, 42px);
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  .results-tagline {
+    font-size: 14px;
+    color: var(--fog);
+    margin-bottom: 22px;
+    line-height: 1.6;
+  }
+
+  .answer-key {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+
+  .answer-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--soil);
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  .answer-row .card-name {
+    font-weight: 600;
+    color: var(--cream);
+    min-width: 140px;
+    flex-shrink: 0;
+  }
+
+  .answer-row .correct-zone {
+    color: var(--clay);
+    line-height: 1.5;
+  }
+
+  .answer-row .correct-zone strong { color: var(--gold); }
+
+  .insight-box {
+    background: rgba(61,90,62,0.25);
+    border: 1px solid var(--moss-light);
+    border-radius: 8px;
+    padding: 18px 18px;
+    margin-bottom: 22px;
+  }
+
+  .insight-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--moss-light);
+    margin-bottom: 8px;
+  }
+
+  .insight-text {
+    font-size: 13px;
+    color: var(--fog);
+    line-height: 1.75;
+  }
+
+  .btn-restart {
+    background: transparent;
+    border: 1.5px solid var(--amber);
+    border-radius: 8px;
+    padding: 12px 24px;
+    color: var(--amber);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+  }
+
+  .btn-restart:hover { background: rgba(200,121,58,0.1); color: var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="ministry-label">Detox Your Life Method Ministry</div>
+  <h1>Cause vs. <span>Symptom</span></h1>
+  <p class="header-sub">Drag each card into the category where it belongs. This is how terrain thinkers read the body.</p>
+</div>
+
+<div class="instructions" style="margin-left:auto;margin-right:auto;max-width:700px;">
+  <p>The medical model treats every item on this list as a separate problem requiring a separate solution. <strong>The terrain model asks a different question: is this a cause, an effect, an elimination route, or a warning sign?</strong> Sort the cards. Then we will talk about what you discovered.</p>
+</div>
+
+<div class="score-bar">
+  <div class="score-pill">Placed: <span id="placedCount">0</span> / 12</div>
+  <button class="btn-check" id="checkBtn" disabled onclick="checkAnswers()">Check My Answers</button>
+</div>
+
+<div class="game-wrap">
+
+  <!-- CARD DECK -->
+  <div>
+    <div class="deck-label">Cards to Sort</div>
+    <div class="deck" id="deck"></div>
+  </div>
+
+  <!-- DROP ZONES -->
+  <div class="zones-grid">
+
+    <div class="zone" data-zone="cause"
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'cause')">
+      <div class="zone-header">
+        <div class="zone-icon">🔥</div>
+        <div class="zone-title">Root Cause</div>
+      </div>
+      <div class="zone-desc">What creates the internal environment for breakdown</div>
+      <div class="zone-cards" id="zone-cause"></div>
+    </div>
+
+    <div class="zone" data-zone="effect"
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'effect')">
+      <div class="zone-header">
+        <div class="zone-icon">⚡</div>
+        <div class="zone-title">Effect / Result</div>
+      </div>
+      <div class="zone-desc">What the body produces or experiences downstream</div>
+      <div class="zone-cards" id="zone-effect"></div>
+    </div>
+
+    <div class="zone" data-zone="elimination"
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'elimination')">
+      <div class="zone-header">
+        <div class="zone-icon">🌿</div>
+        <div class="zone-title">Elimination Route</div>
+      </div>
+      <div class="zone-desc">How the body tries to move waste out</div>
+      <div class="zone-cards" id="zone-elimination"></div>
+    </div>
+
+    <div class="zone" data-zone="warning"
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'warning')">
+      <div class="zone-header">
+        <div class="zone-icon">🔔</div>
+        <div class="zone-title">Warning Signal</div>
+      </div>
+      <div class="zone-desc">The body communicating that a threshold has been crossed</div>
+      <div class="zone-cards" id="zone-warning"></div>
+    </div>
+
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-panel" id="resultsPanel">
+    <div class="results-eyebrow">Your Results</div>
+    <div class="results-score-big" id="resultsScore"></div>
+    <div class="results-tagline" id="resultsTagline"></div>
+
+    <div class="answer-key" id="answerKey"></div>
+
+    <div class="insight-box">
+      <div class="insight-label">The Key Insight</div>
+      <div class="insight-text">
+        The medical model assigns a drug to every item in this list. The terrain model traces every item back to the same two questions: <strong>What is the internal environment producing?</strong> And <strong>what is not being eliminated?</strong> When you learn to ask those two questions, you stop chasing symptoms and start correcting causes.
+      </div>
+    </div>
+
+    <button class="btn-restart" onclick="restartGame()">↺ Play Again</button>
+  </div>
+
+</div>
+
+<script>
+  // ── DATA ──
+  const CARDS = [
+    { id: 'c1',  label: 'Acid Waste',         correct: 'cause',       explain: 'Uneliminated acid waste acidifies the internal environment — the upstream cause of most chronic conditions.' },
+    { id: 'c2',  label: 'Protein Burden',      correct: 'cause',       explain: 'Excess animal protein generates ammonia, creating a two-organ tax on the liver and kidneys before any symptom appears.' },
+    { id: 'c3',  label: 'Lymph Stagnation',    correct: 'cause',       explain: 'Stagnant lymph means cellular waste has no movement. It pools in tissues, creating the acidic swamp that precedes breakdown.' },
+    { id: 'c4',  label: 'Skin Breakout',       correct: 'elimination', explain: 'The skin is an elimination organ. Breakouts are the body rerouting waste outward when kidneys and bowels are backed up.' },
+    { id: 'c5',  label: 'Heavy Bleeding',      correct: 'warning',     explain: 'Heavy bleeding is the body signaling estrogen dominance — estrogen that the congested liver failed to clear and excrete.' },
+    { id: 'c6',  label: 'Headache',            correct: 'warning',     explain: 'Headaches signal toxic blood, lymphatic pressure, or dehydration. They are a message, not a Tylenol deficiency.' },
+    { id: 'c7',  label: 'Constipation',        correct: 'effect',      explain: 'Constipation is a downstream effect of dehydration, low fiber, mucus buildup, and sluggish bowel motility — not an isolated disease.' },
+    { id: 'c8',  label: 'Mucus',               correct: 'elimination', explain: 'Mucus is the body attempting to bind, trap, and remove irritants. It is a protective elimination response, not the enemy.' },
+    { id: 'c9',  label: 'Fatigue',             correct: 'warning',     explain: 'Chronic fatigue signals the body is using its energy to manage internal toxicity rather than fuel daily function.' },
+    { id: 'c10', label: 'Hormone Imbalance',   correct: 'effect',      explain: 'Hormonal imbalance is downstream of liver congestion. The liver failed to clear hormones — the imbalance is the effect, not the origin.' },
+    { id: 'c11', label: 'Kidney Failure',      correct: 'effect',      explain: 'Kidney failure is the end-stage effect of years of protein overload, acid accumulation, and urea buildup — not a standalone disease.' },
+    { id: 'c12', label: 'Anger / Irritability',correct: 'warning',     explain: 'Emotional heat — disproportionate anger or irritability — is a classic signal of hepatic congestion. The liver is backed up.' },
+  ];
+
+  let placements = {}; // cardId -> zoneName
+  let dragCardId = null;
+  let checked = false;
+
+  // ── INIT ──
+  function init() {
+    placements = {};
+    dragCardId = null;
+    checked = false;
+    document.getElementById('placedCount').textContent = '0';
+    document.getElementById('checkBtn').disabled = true;
+    document.getElementById('resultsPanel').classList.remove('show');
+
+    // Clear zones
+    ['cause','effect','elimination','warning'].forEach(z => {
+      document.getElementById('zone-' + z).innerHTML = '';
+    });
+
+    // Shuffle and render deck
+    const deck = document.getElementById('deck');
+    deck.innerHTML = '';
+    const shuffled = [...CARDS].sort(() => Math.random() - 0.5);
+    shuffled.forEach(card => {
+      deck.appendChild(makeCardEl(card));
+    });
+  }
+
+  function makeCardEl(card) {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.id = 'card-' + card.id;
+    el.textContent = card.label;
+    el.draggable = true;
+    el.dataset.cardId = card.id;
+    el.addEventListener('dragstart', onDragStart);
+    el.addEventListener('dragend', onDragEnd);
+    // Touch support
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    el.addEventListener('touchend', onTouchEnd);
+    return el;
+  }
+
+  // ── DRAG (desktop) ──
+  function onDragStart(e) {
+    if (checked) return;
+    dragCardId = e.target.dataset.cardId;
+    e.target.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  }
+
+  function onDragEnd(e) {
+    e.target.classList.remove('dragging');
+  }
+
+  function onDragOver(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('drag-over');
+  }
+
+  function onDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+  }
+
+  function onDrop(e, zoneName) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    if (!dragCardId || checked) return;
+    placeCard(dragCardId, zoneName);
+    dragCardId = null;
+  }
+
+  // ── TOUCH (mobile) ──
+  let touchCard = null;
+  let touchClone = null;
+  let touchOffX = 0, touchOffY = 0;
+
+  function onTouchStart(e) {
+    if (checked) return;
+    touchCard = e.currentTarget;
+    const t = e.touches[0];
+    const r = touchCard.getBoundingClientRect();
+    touchOffX = t.clientX - r.left;
+    touchOffY = t.clientY - r.top;
+    touchClone = touchCard.cloneNode(true);
+    touchClone.style.cssText = `position:fixed;z-index:9999;opacity:0.85;pointer-events:none;width:${r.width}px;`;
+    document.body.appendChild(touchClone);
+  }
+
+  function onTouchMove(e) {
+    if (!touchClone) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    touchClone.style.left = (t.clientX - touchOffX) + 'px';
+    touchClone.style.top  = (t.clientY - touchOffY) + 'px';
+  }
+
+  function onTouchEnd(e) {
+    if (!touchClone || !touchCard) return;
+    const t = e.changedTouches[0];
+    document.body.removeChild(touchClone);
+    touchClone = null;
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    const zone = el ? el.closest('[data-zone]') : null;
+    if (zone) {
+      placeCard(touchCard.dataset.cardId, zone.dataset.zone);
+    }
+    touchCard = null;
+  }
+
+  // ── PLACE CARD ──
+  function placeCard(cardId, zoneName) {
+    // Remove from wherever it currently is
+    const existing = document.getElementById('card-' + cardId);
+    if (existing) existing.remove();
+
+    // Remove from old placement tracking
+    delete placements[cardId];
+
+    // Add to new zone
+    const card = CARDS.find(c => c.id === cardId);
+    const zoneEl = document.getElementById('zone-' + zoneName);
+    const cardEl = makeCardEl(card);
+    zoneEl.appendChild(cardEl);
+    placements[cardId] = zoneName;
+
+    updateCount();
+  }
+
+  function updateCount() {
+    const count = Object.keys(placements).length;
+    document.getElementById('placedCount').textContent = count;
+    document.getElementById('checkBtn').disabled = count < CARDS.length;
+  }
+
+  // ── CHECK ──
+  function checkAnswers() {
+    checked = true;
+    let correct = 0;
+
+    CARDS.forEach(card => {
+      const el = document.getElementById('card-' + card.id);
+      if (!el) return;
+      const placed = placements[card.id];
+      if (placed === card.correct) {
+        el.classList.add('correct');
+        correct++;
+      } else {
+        el.classList.add('incorrect');
+      }
+      el.draggable = false;
+    });
+
+    showResults(correct);
+  }
+
+  function showResults(correct) {
+    const total = CARDS.length;
+    const pct = Math.round((correct / total) * 100);
+
+    document.getElementById('resultsScore').textContent = correct + ' / ' + total + ' correct';
+
+    const taglines = {
+      100: "Perfect. You are reading the body the way the DYL Method reads it.",
+      high: "Strong terrain thinking. A few connections to sharpen — review the answer key below.",
+      mid: "You are making the shift. The medical model is loud. Keep building the new lens.",
+      low: "This is exactly why we are here. The sorting is designed to reveal the gaps. Study the key."
+    };
+
+    document.getElementById('resultsTagline').textContent =
+      pct === 100 ? taglines[100] :
+      pct >= 75   ? taglines.high :
+      pct >= 50   ? taglines.mid  : taglines.low;
+
+    // Answer key
+    const keyEl = document.getElementById('answerKey');
+    keyEl.innerHTML = '';
+    CARDS.forEach(card => {
+      const placed = placements[card.id] || '—';
+      const isCorrect = placed === card.correct;
+      const row = document.createElement('div');
+      row.className = 'answer-row';
+      row.innerHTML = `
+        <div class="card-name">${isCorrect ? '✓' : '✗'} ${card.label}</div>
+        <div class="correct-zone"><strong>${formatZone(card.correct)}</strong> — ${card.explain}</div>
+      `;
+      keyEl.appendChild(row);
+    });
+
+    document.getElementById('resultsPanel').classList.add('show');
+    document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function formatZone(z) {
+    return { cause: 'Root Cause', effect: 'Effect / Result', elimination: 'Elimination Route', warning: 'Warning Signal' }[z] || z;
+  }
+
+  function restartGame() {
+    document.getElementById('resultsPanel').classList.remove('show');
+    init();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  init();
+</script>
+</body>
+</html>
