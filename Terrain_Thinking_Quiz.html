@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DYL Method | Terrain Thinking Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --soil: #2C1A0E;
+    --bark: #4A2E1A;
+    --amber: #C8793A;
+    --gold: #E8A84A;
+    --cream: #F9F3EA;
+    --moss: #3D5A3E;
+    --moss-light: #5A7F5B;
+    --clay: #D4A574;
+    --fog: #F0E8DC;
+    --text-light: #9A7358;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--soil);
+    font-family: 'Inter', sans-serif;
+    color: var(--cream);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  .header {
+    background: var(--bark);
+    border-bottom: 2px solid var(--amber);
+    padding: 28px 24px 22px;
+    text-align: center;
+  }
+
+  .ministry-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 5vw, 36px);
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .header h1 span { color: var(--gold); }
+
+  .header-sub {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--clay);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    max-width: 640px;
+    margin: 22px auto 0;
+    padding: 0 16px;
+  }
+
+  .progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .progress-label {
+    font-size: 11px;
+    color: var(--text-light);
+    letter-spacing: 0.5px;
+  }
+
+  .score-live {
+    font-size: 11px;
+    color: var(--gold);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .progress-bar-bg {
+    background: var(--bark);
+    border-radius: 99px;
+    height: 5px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    background: linear-gradient(90deg, var(--amber), var(--gold));
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* ── QUESTION CARD ── */
+  .card-wrap {
+    max-width: 640px;
+    margin: 20px auto 0;
+    padding: 0 16px 40px;
+  }
+
+  .q-card {
+    background: var(--bark);
+    border-radius: 12px;
+    border: 1px solid rgba(200,121,58,0.3);
+    padding: 28px 24px;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .q-card.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .q-number {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+
+  .q-tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 99px;
+    background: rgba(200,121,58,0.15);
+    color: var(--clay);
+  }
+
+  .scenario-box {
+    background: var(--soil);
+    border-left: 3px solid var(--amber);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+  }
+
+  .scenario-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 7px;
+  }
+
+  .scenario-text {
+    font-size: 14px;
+    color: var(--fog);
+    line-height: 1.65;
+  }
+
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(16px, 3vw, 20px);
+    font-weight: 400;
+    color: var(--cream);
+    line-height: 1.4;
+    margin-bottom: 20px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    background: var(--soil);
+    border: 1.5px solid rgba(200,121,58,0.22);
+    border-radius: 8px;
+    padding: 13px 16px;
+    color: var(--fog);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    line-height: 1.45;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .option-letter {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--amber);
+    flex-shrink: 0;
+    margin-top: 1px;
+    min-width: 14px;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--amber);
+    background: rgba(200,121,58,0.07);
+    color: var(--cream);
+  }
+
+  .option-btn.selected {
+    border-color: var(--gold);
+    background: rgba(232,168,74,0.1);
+  }
+
+  .option-btn.correct {
+    border-color: var(--moss-light);
+    background: rgba(61,90,62,0.25);
+    color: #A8D4A8;
+    cursor: default;
+  }
+
+  .option-btn.wrong {
+    border-color: #B85555;
+    background: rgba(139,58,58,0.2);
+    color: #E8A0A0;
+    cursor: default;
+  }
+
+  .option-btn.reveal-correct {
+    border-color: var(--moss-light);
+    background: rgba(61,90,62,0.15);
+    color: #A8D4A8;
+    cursor: default;
+  }
+
+  /* ── FEEDBACK ── */
+  .feedback-box {
+    margin-top: 18px;
+    border-radius: 8px;
+    padding: 16px 18px;
+    display: none;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb { background: rgba(61,90,62,0.25); border: 1px solid var(--moss-light); }
+  .feedback-box.wrong-fb   { background: rgba(139,58,58,0.2);  border: 1px solid #B85555; }
+
+  .feedback-result {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 7px;
+  }
+
+  .feedback-box.correct-fb .feedback-result { color: #A8D4A8; }
+  .feedback-box.wrong-fb   .feedback-result { color: #E8A0A0; }
+
+  .feedback-explain {
+    font-size: 13px;
+    color: var(--fog);
+    line-height: 1.7;
+  }
+
+  .feedback-explain strong { color: var(--gold); }
+
+  /* ── NAV ── */
+  .nav-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  .btn-next {
+    background: linear-gradient(135deg, var(--amber), var(--gold));
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    color: var(--soil);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .btn-next:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn-next:not(:disabled):hover { opacity: 0.88; }
+
+  /* ── RESULTS ── */
+  .results-card {
+    background: var(--bark);
+    border-radius: 12px;
+    border: 1px solid var(--amber);
+    padding: 32px 24px;
+    display: none;
+    max-width: 640px;
+    margin: 20px auto 40px;
+  }
+
+  .results-card.active {
+    display: block;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .results-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 14px;
+  }
+
+  .score-display {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .score-big {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 8vw, 58px);
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .score-denom {
+    font-size: 18px;
+    color: var(--clay);
+  }
+
+  .score-label {
+    font-size: 14px;
+    color: var(--fog);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  /* ── SHIFT INDICATORS ── */
+  .shift-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .shift-item {
+    background: var(--soil);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .shift-icon { font-size: 18px; flex-shrink: 0; }
+
+  .shift-body { flex: 1; }
+
+  .shift-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+
+  .shift-text {
+    font-size: 12px;
+    color: var(--clay);
+    line-height: 1.6;
+  }
+
+  .closing-box {
+    background: rgba(61,90,62,0.25);
+    border: 1px solid var(--moss-light);
+    border-radius: 8px;
+    padding: 18px 18px;
+    margin-bottom: 22px;
+  }
+
+  .closing-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--moss-light);
+    margin-bottom: 8px;
+  }
+
+  .closing-text {
+    font-size: 13px;
+    color: var(--fog);
+    line-height: 1.75;
+  }
+
+  .closing-text strong { color: var(--cream); }
+
+  .btn-restart {
+    background: transparent;
+    border: 1.5px solid var(--amber);
+    border-radius: 8px;
+    padding: 12px 24px;
+    color: var(--amber);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+  }
+
+  .btn-restart:hover { background: rgba(200,121,58,0.1); color: var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="ministry-label">Detox Your Life Method Ministry</div>
+  <h1>What Is the Body <span>Trying to Do?</span></h1>
+  <p class="header-sub">Six scenarios. One question each. Train your terrain thinking.</p>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-row">
+    <div class="progress-label" id="progressLabel">Question 1 of 6</div>
+    <div class="score-live" id="scoreLive">Score: 0</div>
+  </div>
+  <div class="progress-bar-bg">
+    <div class="progress-bar-fill" id="progressFill"></div>
+  </div>
+</div>
+
+<div class="card-wrap" id="questionArea">
+
+  <!-- Q1 -->
+  <div class="q-card active" data-index="0">
+    <div class="q-meta">
+      <div class="q-number">Question 1 of 6</div>
+      <div class="q-tag">Hormone Symptoms</div>
+    </div>
+    <div class="scenario-box">
+      <div class="scenario-label">Scenario</div>
+      <div class="scenario-text">A 38-year-old woman has fibroids, heavy periods, breast tenderness, and mood swings. Her OB-GYN says her hormone levels are "within normal range." She has been told to consider surgery or hormonal birth control.</div>
+    </div>
+    <div class="q-text">What is the body actually doing?</div>
+    <div class="options">
+      <button class="option-btn" data-correct="false" onclick="answer(this, 0)">
+        <span class="option-letter">A</span>
+        Her body is producing too many hormones and needs to be suppressed.
+      </button>
+      <button class="option-btn" data-correct="false" onclick="answer(this, 0)">
+        <span class="option-letter">B</span>
+        She has a uterine disease that requires surgical removal.
+      </button>
+      <button class="option-btn" data-correct="true" onclick="answer(this, 0)">
+        <span class="option-letter">C</span>
+        Her liver is not clearing estrogen efficiently — it recirculates, driving tissue growth and emotional symptoms.
+      </button>
+      <button class="option-btn" data-correct="false" onclick="answer(this, 0)">
+        <span class="option-letter">D</span>
+        Her symptoms are genetic and cannot be reversed.
+      </button>
+    </div>
+    <div class="feedback-box" id="fb-0">
+      <div class="feedback-result" id="fb-result-0"></div>
+      <div class="feedback-explain" id="fb-explain-0"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-next" id="next-0" disabled onclick="nextQ(1)">Next →</button>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-card" data-index="1">
+    <div class="q-meta">
+      <div class="q-number">Question 2 of 6</div>
+      <div class="q-tag">Thyroid / Metabolism</div>
+    </div>
+    <div class="scenario-box">
+      <div class="scenario-label">Scenario</div>
+      <div class="scenario-text">A man is exhausted, cold all the time, gaining weight despite eating less, and experiencing brain fog. His thyroid panel came back normal. His doctor says there is nothing wrong.</div>
+    </div>
+    <div class="q-text">What is most likely happening?</div>
+    <div class="options">
+      <button class="option-btn" data-correct="false" onclick="answer(this, 1)">
+        <span class="option-letter">A</span>
+        He is imagining the symptoms. Normal labs mean a healthy body.
+      </button>
+      <button class="option-btn" data-correct="true" onclick="answer(this, 1)">
+        <span class="option-letter">B</span>
+        His liver is congested and cannot convert T4 into active T3 — cells experience hypothyroid symptoms even when gland output tests normal.
+      </button>
+      <button class="option-btn" data-correct="false" onclick="answer(this, 1)">
+        <span class="option-letter">C</span>
+        He needs a higher-dose thyroid prescription.
+      </button>
+      <button class="option-btn" data-correct="false" onclick="answer(this, 1)">
+        <span class="option-letter">D</span>
+        He simply needs more exercise and willpower.
+      </button>
+    </div>
+    <div class="feedback-box" id="fb-1">
+      <div class="feedback-result" id="fb-result-1"></div>
+      <div class="feedback-explain" id="fb-explain-1"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-next" id="next-1" disabled onclick="nextQ(2)">Next →</button>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-card" data-index="2">
+    <div class="q-meta">
+      <div class="q-number">Question 3 of 6</div>
+      <div class="q-tag">Skin & Elimination</div>
+    </div>
+    <div class="scenario-box">
+      <div class="scenario-label">Scenario</div>
+      <div class="scenario-text">A teenager has chronic acne across her jaw and chin. She has tried antibiotics, topical creams, and a prescription retinoid. The acne clears briefly then returns.</div>
+    </div>
+    <div class="q-text">What is the body doing through the skin?</div>
+    <div class="options">
+      <button class="option-btn" data-correct="false" onclick="answer(this, 2)">
+        <span class="option-letter">A</span>
+        Her skin has a bacterial infection that has become antibiotic-resistant.
+      </button>
+      <button class="option-btn" data-correct="false" onclick="answer(this, 2)">
+        <span class="option-letter">B</span>
+        She needs a stronger prescription.
+      </button>
+      <button class="option-btn" data-correct="true" onclick="answer(this, 2)">
+        <span class="option-letter">C</span>
+        The skin is an elimination organ. When kidneys and bowels are backed up, the body reroutes waste outward. Treating the skin suppresses the route without addressing the source.
+      </button>
+      <button class="option-btn" data-correct="false" onclick="answer(this, 2)">
+        <span class="option-letter">D</span>
+        This is a normal part of puberty with no terrain connection.
+      </button>
+    </div>
+    <div class="feedback-box" id="fb-2">
+      <div class="feedback-result" id="fb-result-2"></div>
+      <div class="feedback-explain" id="fb-explain-2"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-next" id="next-2" disabled onclick="nextQ(3)">Next →</button>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-card" data-index="3">
+    <div class="q-meta">
+      <div class="q-number">Question 4 of 6</div>
+      <div class="q-tag">Kidney Function</div>
+    </div>
+    <div class="scenario-box">
+      <div class="scenario-label">Scenario</div>
+      <div class="scenario-text">A 55-year-old woman is told her creatinine is elevated and her eGFR is declining. Her nephrologist says her kidneys are failing and she should prepare for the possibility of dialysis. She has eaten high-protein meals her entire adult life.</div>
+    </div>
+    <div class="q-text">From a terrain perspective, what created this condition?</div>
+    <div class="options">
+      <button class="option-btn" data-correct="false" onclick="answer(this, 3)">
+        <span class="option-letter">A</span>
+        Kidney failure is genetic and unrelated to diet.
+      </button>
+      <button class="option-btn" data-correct="false" onclick="answer(this, 3)">
+        <span class="option-letter">B</span>
+        Her kidneys simply wore out from age.
+      </button>
+      <button class="option-btn" data-correct="false" onclick="answer(this, 3)">
+        <span class="option-letter">C</span>
+        She needs dialysis as soon as possible.
+      </button>
+      <button class="option-btn" data-correct="true" onclick="answer(this, 3)">
+        <span class="option-letter">D</span>
+        Decades of protein metabolism produced chronic urea and ammonia buildup. The kidneys filtered this load daily until the nephrons were damaged. This is a diet-created condition — not an irreversible disease.
+      </button>
+    </div>
+    <div class="feedback-box" id="fb-3">
+      <div class="feedback-result" id="fb-result-3"></div>
+      <div class="feedback-explain" id="fb-explain-3"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-next" id="next-3" disabled onclick="nextQ(4)">Next →</button>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-card" data-index="4">
+    <div class="q-meta">
+      <div class="q-number">Question 5 of 6</div>
+      <div class="q-tag">Emotional Symptoms</div>
+    </div>
+    <div class="scenario-box">
+      <div class="scenario-label">Scenario</div>
+      <div class="scenario-text">A woman describes herself as "always angry." She snaps at her family, feels rage that seems out of proportion to situations, and has been recommended an antidepressant. She also wakes between 1 and 3 AM regularly.</div>
+    </div>
+    <div class="q-text">What is the terrain model's interpretation?</div>
+    <div class="options">
+      <button class="option-btn" data-correct="false" onclick="answer(this, 4)">
+        <span class="option-letter">A</span>
+        She has a serotonin deficiency that requires medication.
+      </button>
+      <button class="option-btn" data-correct="false" onclick="answer(this, 4)">
+        <span class="option-letter">B</span>
+        This is a personality problem, not a physiological one.
+      </button>
+      <button class="option-btn" data-correct="true" onclick="answer(this, 4)">
+        <span class="option-letter">C</span>
+        Hepatic congestion generates what many traditions call liver heat — a physiological state that expresses as disproportionate anger. The 1–3 AM waking confirms the liver is under strain. This is a terrain signal, not a character flaw.
+      </button>
+      <button class="option-btn" data-correct="false" onclick="answer(this, 4)">
+        <span class="option-letter">D</span>
+        Anger and sleep disruption have no physiological connection.
+      </button>
+    </div>
+    <div class="feedback-box" id="fb-4">
+      <div class="feedback-result" id="fb-result-4"></div>
+      <div class="feedback-explain" id="fb-explain-4"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-next" id="next-4" disabled onclick="nextQ(5)">Next →</button>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-card" data-index="5">
+    <div class="q-meta">
+      <div class="q-number">Question 6 of 6</div>
+      <div class="q-tag">The Root Question</div>
+    </div>
+    <div class="scenario-box">
+      <div class="scenario-label">Scenario</div>
+      <div class="scenario-text">A person has acne, migraines, constipation, fatigue, and was recently diagnosed with PCOS. She is on three different medications — one for each symptom category. None of them are working long-term.</div>
+    </div>
+    <div class="q-text">From a terrain perspective, what is actually happening?</div>
+    <div class="options">
+      <button class="option-btn" data-correct="false" onclick="answer(this, 5)">
+        <span class="option-letter">A</span>
+        She has five separate conditions that each require their own treatment.
+      </button>
+      <button class="option-btn" data-correct="false" onclick="answer(this, 5)">
+        <span class="option-letter">B</span>
+        Her medications are not strong enough yet.
+      </button>
+      <button class="option-btn" data-correct="false" onclick="answer(this, 5)">
+        <span class="option-letter">C</span>
+        She has a rare autoimmune syndrome.
+      </button>
+      <button class="option-btn" data-correct="true" onclick="answer(this, 5)">
+        <span class="option-letter">D</span>
+        These are five expressions of one internal environment. The liver is congested, estrogen is recirculating, elimination routes are backed up, and the body is using every available channel — skin, bowel, head pressure, hormones — to signal that the terrain needs correction.
+      </button>
+    </div>
+    <div class="feedback-box" id="fb-5">
+      <div class="feedback-result" id="fb-result-5"></div>
+      <div class="feedback-explain" id="fb-explain-5"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-next" id="next-5" disabled onclick="showResults()">See My Results →</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- RESULTS -->
+<div class="results-card" id="resultsCard">
+  <div class="results-eyebrow">Your Terrain Thinking Score</div>
+  <div class="score-display">
+    <div class="score-big" id="scoreBig">0</div>
+    <div class="score-denom">/ 6</div>
+  </div>
+  <div class="score-label" id="scoreLabel"></div>
+
+  <div class="shift-grid">
+    <div class="shift-item">
+      <div class="shift-icon">🔁</div>
+      <div class="shift-body">
+        <div class="shift-title">The Shift You Are Making</div>
+        <div class="shift-text">From: "Which drug treats this symptom?" → To: "What is this symptom trying to eliminate, and what is blocking the exit?"</div>
+      </div>
+    </div>
+    <div class="shift-item">
+      <div class="shift-icon">🔬</div>
+      <div class="shift-body">
+        <div class="shift-title">Why Labs Miss It</div>
+        <div class="shift-text">Standard markers — creatinine, eGFR, TSH, hormone panels — measure late-stage function. The terrain has been stressed for years before those numbers move. Normal labs do not mean a clear terrain.</div>
+      </div>
+    </div>
+    <div class="shift-item">
+      <div class="shift-icon">🌿</div>
+      <div class="shift-body">
+        <div class="shift-title">The Two Questions That Replace Everything</div>
+        <div class="shift-text">1. What is the body trying to eliminate? 2. What is blocking the exit? Answer those two questions and the correction becomes obvious.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="closing-box">
+    <div class="closing-label">Carry This Into Every Appointment</div>
+    <div class="closing-text">The next time a provider gives you a diagnosis, ask yourself: <strong>Is this a name for a condition — or a name for what the body is doing?</strong> One answer leads to suppression. The other leads to correction.</div>
+  </div>
+
+  <button class="btn-restart" onclick="restartQuiz()">↺ Retake the Quiz</button>
+</div>
+
+<script>
+  const EXPLANATIONS = [
+    {
+      correct: 'C',
+      correctText: 'Correct. The liver is the hormonal traffic controller. When it is congested, estrogen does not get metabolized and excreted — it recirculates. <strong>Fibroids, heavy bleeding, and PMS are downstream effects of that recirculation.</strong> The correction starts in the liver, not the uterus.',
+      wrongText: 'The terrain answer is C. <strong>The liver processes and clears estrogen through bile into the bowel.</strong> When that pathway is blocked, estrogen recirculates and drives tissue growth. The glands are often working correctly — the processing and elimination pathway is not.'
+    },
+    {
+      correct: 'B',
+      correctText: 'Correct. <strong>The liver converts up to 80% of inactive T4 thyroid hormone into its active T3 form.</strong> A congested liver cannot do this conversion efficiently. Cells experience hypothyroid symptoms — cold, fatigue, fog, weight gain — while the thyroid gland tests normal. The problem is downstream.',
+      wrongText: 'The terrain answer is B. <strong>T4 to T3 conversion happens primarily in the liver, not the thyroid gland.</strong> Normal thyroid labs only confirm the gland is producing T4. They do not confirm the liver is converting it. When the liver is congested, that conversion slows — and the symptoms follow.'
+    },
+    {
+      correct: 'C',
+      correctText: 'Correct. <strong>The skin is the third kidney.</strong> When the bowels are sluggish and kidneys are under-filtering, the body pushes waste toward the skin. Jaw and chin acne specifically tracks with hormonal and digestive lymphatic burden. Every topical treatment suppresses the exit route without addressing the source.',
+      wrongText: 'The terrain answer is C. <strong>Acne is not a skin disease — it is an elimination signal.</strong> The body is rerouting waste outward when internal channels are backed up. Antibiotics and retinoids close the exit. The waste finds another route, or builds up internally.'
+    },
+    {
+      correct: 'D',
+      correctText: 'Correct. <strong>Kidney failure is a diet-created condition in most cases.</strong> Decades of animal protein generates continuous ammonia → urea → filtration demand. The nephrons — the filtration units — sustain damage over years of overload. Dr. Walter Kempner reversed kidney disease with a rice and fruit diet in documented clinical cases. This condition has a terrain origin.',
+      wrongText: 'The terrain answer is D. <strong>Creatinine and eGFR are late-stage markers.</strong> By the time they flag, the terrain has been under acid stress for years. The protein-ammonia-urea cycle is the upstream cause in most cases. Reversibility depends on how much filtration capacity remains — and addressing the diet that created the load.'
+    },
+    {
+      correct: 'C',
+      correctText: 'Correct. <strong>Hepatic congestion — a backed-up liver — generates internal heat that expresses as disproportionate anger and irritability.</strong> This is documented across multiple healing traditions and maps to the 1–3 AM liver processing window. This is not a character flaw. It is a physiological state with a correction.',
+      wrongText: 'The terrain answer is C. <strong>The liver and emotional regulation are directly connected through physiological heat and hormone processing.</strong> When the liver cannot clear cortisol, estrogen, and metabolic waste, the nervous system operates in a state of chronic internal stress. The anger is the signal — not the diagnosis.'
+    },
+    {
+      correct: 'D',
+      correctText: 'Correct. <strong>This is the core teaching of the terrain model.</strong> Five diagnoses, five medications, one internal environment. The liver is congested, estrogen is recirculating, elimination routes are backed up, and the body is broadcasting through every available channel. Suppress one channel and the waste finds another. Correct the terrain and the channels clear.',
+      wrongText: 'The terrain answer is D. <strong>Multiple symptoms in one body are rarely multiple separate diseases.</strong> They are multiple expressions of one internal environment. The question is never "which drug for which symptom?" The question is always "what is the internal environment producing, and what is blocking its elimination?"'
+    }
+  ];
+
+  let score = 0;
+  let answered = new Array(6).fill(false);
+  let currentQ = 0;
+
+  function answer(btn, qIdx) {
+    if (answered[qIdx]) return;
+    answered[qIdx] = true;
+
+    const card = document.querySelector(`.q-card[data-index="${qIdx}"]`);
+    const allBtns = card.querySelectorAll('.option-btn');
+    const isCorrect = btn.dataset.correct === 'true';
+    const fb = document.getElementById('fb-' + qIdx);
+    const fbResult = document.getElementById('fb-result-' + qIdx);
+    const fbExplain = document.getElementById('fb-explain-' + qIdx);
+
+    allBtns.forEach(b => {
+      b.disabled = true;
+      if (b.dataset.correct === 'true') b.classList.add('reveal-correct');
+    });
+
+    if (isCorrect) {
+      btn.classList.add('correct');
+      score++;
+      document.getElementById('scoreLive').textContent = 'Score: ' + score;
+      fb.classList.add('correct-fb', 'show');
+      fbResult.textContent = '✓ Correct';
+      fbExplain.innerHTML = EXPLANATIONS[qIdx].correctText;
+    } else {
+      btn.classList.add('wrong');
+      fb.classList.add('wrong-fb', 'show');
+      fbResult.textContent = '✗ Not quite';
+      fbExplain.innerHTML = EXPLANATIONS[qIdx].wrongText;
+    }
+
+    document.getElementById('next-' + qIdx).disabled = false;
+  }
+
+  function nextQ(idx) {
+    document.querySelector(`.q-card[data-index="${idx - 1}"]`).classList.remove('active');
+    document.querySelector(`.q-card[data-index="${idx}"]`).classList.add('active');
+    currentQ = idx;
+
+    const pct = (idx / 6) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = `Question ${idx + 1} of 6`;
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showResults() {
+    document.getElementById('questionArea').style.display = 'none';
+    document.querySelector('.progress-wrap').style.display = 'none';
+
+    const resultsCard = document.getElementById('resultsCard');
+    resultsCard.classList.add('active');
+
+    document.getElementById('scoreBig').textContent = score;
+    document.getElementById('progressFill').style.width = '100%';
+
+    const labels = {
+      6: 'Perfect. You have made the shift. You are reading the body the way the DYL Method reads it.',
+      5: 'Strong terrain thinking. One concept to revisit — review the explanation below.',
+      4: 'You are building the lens. Two questions to sharpen. The shift takes repetition.',
+      3: 'Halfway there. The medical model is deeply conditioned. Keep returning to the two core questions.',
+      2: 'The framework is new. That is exactly why today\'s class matters. Retake this after the session.',
+      1: 'You are at the beginning of a significant shift. Every question you missed is a teaching moment — not a failure.',
+      0: 'This is day one of a new way of seeing. Everything you thought you knew about symptoms is about to change.'
+    };
+
+    document.getElementById('scoreLabel').textContent = labels[score] || labels[0];
+    resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function restartQuiz() {
+    score = 0;
+    answered = new Array(6).fill(false);
+    currentQ = 0;
+
+    document.getElementById('resultsCard').classList.remove('active');
+    document.getElementById('questionArea').style.display = 'block';
+    document.querySelector('.progress-wrap').style.display = 'block';
+    document.getElementById('scoreLive').textContent = 'Score: 0';
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('progressLabel').textContent = 'Question 1 of 6';
+
+    document.querySelectorAll('.q-card').forEach((card, i) => {
+      card.classList.toggle('active', i === 0);
+      card.querySelectorAll('.option-btn').forEach(b => {
+        b.classList.remove('correct', 'wrong', 'reveal-correct', 'selected');
+        b.disabled = false;
+      });
+      const fb = document.getElementById('fb-' + i);
+      fb.classList.remove('show', 'correct-fb', 'wrong-fb');
+      document.getElementById('next-' + i).disabled = true;
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
