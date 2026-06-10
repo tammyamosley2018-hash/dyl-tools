@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DYL Method | Where Are You Really?</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --soil: #2C1A0E;
+    --bark: #4A2E1A;
+    --amber: #C8793A;
+    --gold: #E8A84A;
+    --cream: #F9F3EA;
+    --moss: #3D5A3E;
+    --moss-light: #5A7F5B;
+    --clay: #D4A574;
+    --fog: #F0E8DC;
+    --text-dark: #1E1209;
+    --text-mid: #5C3D22;
+    --text-light: #9A7358;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--soil);
+    font-family: 'Inter', sans-serif;
+    color: var(--cream);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--bark);
+    border-bottom: 2px solid var(--amber);
+    padding: 28px 24px 22px;
+    text-align: center;
+  }
+
+  .ministry-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 5vw, 38px);
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1.15;
+    margin-bottom: 10px;
+  }
+
+  .header h1 span {
+    color: var(--gold);
+  }
+
+  .header-sub {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--clay);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── INTRO ── */
+  .intro {
+    background: var(--bark);
+    border: 1px solid var(--amber);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 24px 16px 0;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .intro p {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--fog);
+  }
+
+  .intro strong {
+    color: var(--gold);
+  }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    max-width: 640px;
+    margin: 20px auto 0;
+    padding: 0 16px;
+  }
+
+  .progress-bar-bg {
+    background: var(--bark);
+    border-radius: 99px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    background: linear-gradient(90deg, var(--amber), var(--gold));
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .progress-label {
+    font-size: 11px;
+    color: var(--text-light);
+    text-align: right;
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── QUESTION CARD ── */
+  .card-wrap {
+    max-width: 640px;
+    margin: 20px auto 0;
+    padding: 0 16px 40px;
+  }
+
+  .q-card {
+    background: var(--bark);
+    border-radius: 12px;
+    border: 1px solid rgba(200,121,58,0.3);
+    padding: 28px 24px;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .q-card.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-number {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 12px;
+  }
+
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(17px, 3vw, 21px);
+    font-weight: 400;
+    color: var(--cream);
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .q-context {
+    font-size: 13px;
+    color: var(--clay);
+    line-height: 1.6;
+    margin-bottom: 24px;
+    font-style: italic;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    background: var(--soil);
+    border: 1.5px solid rgba(200,121,58,0.25);
+    border-radius: 8px;
+    padding: 14px 18px;
+    color: var(--fog);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+    line-height: 1.4;
+  }
+
+  .option-btn:hover {
+    border-color: var(--amber);
+    background: rgba(200,121,58,0.08);
+    color: var(--cream);
+  }
+
+  .option-btn.selected {
+    border-color: var(--gold);
+    background: rgba(232,168,74,0.12);
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  /* ── NAV ── */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    gap: 12px;
+  }
+
+  .btn-back {
+    background: transparent;
+    border: 1px solid rgba(200,121,58,0.4);
+    border-radius: 8px;
+    padding: 11px 20px;
+    color: var(--clay);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-back:hover {
+    border-color: var(--amber);
+    color: var(--cream);
+  }
+
+  .btn-next {
+    background: linear-gradient(135deg, var(--amber), var(--gold));
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    color: var(--soil);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    flex: 1;
+    max-width: 220px;
+  }
+
+  .btn-next:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .btn-next:not(:disabled):hover { opacity: 0.88; }
+
+  /* ── RESULTS ── */
+  .results-card {
+    background: var(--bark);
+    border-radius: 12px;
+    border: 1px solid var(--amber);
+    padding: 32px 24px;
+    display: none;
+    max-width: 640px;
+    margin: 20px auto 40px;
+    padding-bottom: 40px;
+  }
+
+  .results-card.active { display: block; animation: fadeIn 0.4s ease; }
+
+  .results-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 16px;
+  }
+
+  .results-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(20px, 4vw, 28px);
+    color: var(--cream);
+    line-height: 1.3;
+    margin-bottom: 20px;
+  }
+
+  .burden-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .burden-item {
+    background: var(--soil);
+    border-radius: 8px;
+    padding: 16px 18px;
+    border-left: 3px solid var(--amber);
+    display: none;
+  }
+
+  .burden-item.show { display: block; }
+
+  .burden-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 5px;
+    letter-spacing: 0.3px;
+  }
+
+  .burden-desc {
+    font-size: 13px;
+    color: var(--fog);
+    line-height: 1.65;
+  }
+
+  .correction-box {
+    background: rgba(61,90,62,0.3);
+    border: 1px solid var(--moss-light);
+    border-radius: 8px;
+    padding: 20px 20px;
+    margin-bottom: 24px;
+  }
+
+  .correction-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--moss-light);
+    margin-bottom: 10px;
+  }
+
+  .correction-text {
+    font-size: 14px;
+    color: var(--fog);
+    line-height: 1.7;
+  }
+
+  .correction-text strong {
+    color: var(--cream);
+  }
+
+  .score-summary {
+    font-size: 13px;
+    color: var(--clay);
+    line-height: 1.6;
+    margin-bottom: 24px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(200,121,58,0.2);
+  }
+
+  .btn-restart {
+    background: transparent;
+    border: 1.5px solid var(--amber);
+    border-radius: 8px;
+    padding: 12px 24px;
+    color: var(--amber);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+  }
+
+  .btn-restart:hover {
+    background: rgba(200,121,58,0.1);
+    color: var(--gold);
+  }
+
+  .footer-note {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-light);
+    padding: 0 16px 32px;
+    max-width: 640px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="ministry-label">Detox Your Life Method Ministry</div>
+  <h1>Where Are You <span>Really?</span></h1>
+  <p class="header-sub">Answer honestly. This is not a medical test. This is a terrain check.</p>
+</div>
+
+<div class="intro">
+  <p>Your body has been sending signals. Most people are taught to treat those signals as problems to suppress. <strong>We are going to read them instead.</strong> Answer each question based on how you feel right now — not how you want to feel, and not how you felt five years ago.</p>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-bar-bg">
+    <div class="progress-bar-fill" id="progressFill"></div>
+  </div>
+  <div class="progress-label" id="progressLabel">Question 1 of 9</div>
+</div>
+
+<div class="card-wrap" id="questionArea">
+
+  <!-- Q1 -->
+  <div class="q-card active" data-index="0">
+    <div class="q-number">Question 1 of 9</div>
+    <div class="q-text">Do you feel tired, heavy, or foggy after eating a meal?</div>
+    <div class="q-context">Especially after meat, eggs, cheese, or cooked fats.</div>
+    <div class="options">
+      <button class="option-btn" data-value="liver_protein">Yes — this happens regularly</button>
+      <button class="option-btn" data-value="none">Sometimes, but not consistently</button>
+      <button class="option-btn" data-value="none">Rarely or never</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" style="visibility:hidden">Back</button>
+      <button class="btn-next" disabled>Next →</button>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-card" data-index="1">
+    <div class="q-number">Question 2 of 9</div>
+    <div class="q-text">Do you experience skin breakouts, rashes, or itching that comes and goes?</div>
+    <div class="q-context">Skin is an elimination organ. When internal channels are backed up, the body reroutes waste outward.</div>
+    <div class="options">
+      <button class="option-btn" data-value="lymph_skin">Yes — skin issues are ongoing</button>
+      <button class="option-btn" data-value="none">Occasionally, especially under stress</button>
+      <button class="option-btn" data-value="none">No, my skin is generally clear</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back">← Back</button>
+      <button class="btn-next" disabled>Next →</button>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-card" data-index="2">
+    <div class="q-number">Question 3 of 9</div>
+    <div class="q-text">Do you wake up between 1 AM and 3 AM without a clear reason?</div>
+    <div class="q-context">In traditional systems and clinical observation, this window aligns with peak liver processing activity.</div>
+    <div class="options">
+      <button class="option-btn" data-value="liver_hormone">Yes — this is a regular pattern</button>
+      <button class="option-btn" data-value="none">Sometimes, not consistently</button>
+      <button class="option-btn" data-value="none">No, I sleep through the night</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back">← Back</button>
+      <button class="btn-next" disabled>Next →</button>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-card" data-index="3">
+    <div class="q-number">Question 4 of 9</div>
+    <div class="q-text">Do you have any of the following hormone-related symptoms?</div>
+    <div class="q-context">Fibroids, heavy or irregular periods, PMS, PCOS, low libido, breast tenderness, or mood swings tied to your cycle.</div>
+    <div class="options">
+      <button class="option-btn" data-value="liver_hormone">Yes — one or more of these apply to me</button>
+      <button class="option-btn" data-value="none">Mild symptoms occasionally</button>
+      <button class="option-btn" data-value="none">None of these apply</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back">← Back</button>
+      <button class="btn-next" disabled>Next →</button>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-card" data-index="4">
+    <div class="q-number">Question 5 of 9</div>
+    <div class="q-text">Are your kidneys filtering?</div>
+    <div class="q-context">Hold a glass of urine up to light. Do you see white or gray sediment, cloudiness, or strings floating? That is your lymph system moving. Clear yellow with no sediment means the kidneys are not yet filtering actively.</div>
+    <div class="options">
+      <button class="option-btn" data-value="kidney">My urine is clear or pale yellow — no sediment</button>
+      <button class="option-btn" data-value="none">I see some cloudiness or sediment sometimes</button>
+      <button class="option-btn" data-value="none">Yes — I regularly see sediment or cloudiness</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back">← Back</button>
+      <button class="btn-next" disabled>Next →</button>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-card" data-index="5">
+    <div class="q-number">Question 6 of 9</div>
+    <div class="q-text">Do you experience unexplained fatigue, depression, cold sensitivity, or brain fog?</div>
+    <div class="q-context">These are classic signs that the liver is not converting T4 thyroid hormone into its active T3 form — even if your thyroid labs came back "normal."</div>
+    <div class="options">
+      <button class="option-btn" data-value="liver_hormone">Yes — multiple of these are present</button>
+      <button class="option-btn" data-value="none">One or two occasionally</button>
+      <button class="option-btn" data-value="none">None of these</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back">← Back</button>
+      <button class="btn-next" disabled>Next →</button>
+    </div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="q-card" data-index="6">
+    <div class="q-number">Question 7 of 9</div>
+    <div class="q-text">How often do you eat animal protein — meat, eggs, dairy, or fish?</div>
+    <div class="q-context">Every gram of protein that is not used for tissue repair gets broken down into ammonia. The liver converts that ammonia into urea. The kidneys then have to filter it out. This is a two-organ tax on every meal.</div>
+    <div class="options">
+      <button class="option-btn" data-value="liver_protein">Daily or multiple times per day</button>
+      <button class="option-btn" data-value="liver_protein">A few times per week</button>
+      <button class="option-btn" data-value="none">Rarely or not at all</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back">← Back</button>
+      <button class="btn-next" disabled>Next →</button>
+    </div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="q-card" data-index="7">
+    <div class="q-number">Question 8 of 9</div>
+    <div class="q-text">Do you have difficulty losing weight even when you are eating less?</div>
+    <div class="q-context">When the liver is congested, it cannot efficiently process stored fats and regulate insulin-like growth factor. Weight becomes stuck — not because of willpower, but because the processing and elimination pathways are blocked.</div>
+    <div class="options">
+      <button class="option-btn" data-value="liver_hormone">Yes — weight loss has been very difficult</button>
+      <button class="option-btn" data-value="none">Somewhat, but I can lose with strict effort</button>
+      <button class="option-btn" data-value="none">No, this is not an issue for me</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back">← Back</button>
+      <button class="btn-next" disabled>Next →</button>
+    </div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="q-card" data-index="8">
+    <div class="q-number">Question 9 of 9</div>
+    <div class="q-text">Do you experience anger, irritability, or emotional outbursts that feel out of proportion?</div>
+    <div class="q-context">Hepatic congestion — a backed-up liver — creates what many traditions describe as "liver heat." The emotional pattern is not a personality flaw. It is a physiological signal.</div>
+    <div class="options">
+      <button class="option-btn" data-value="lymph_skin">Yes — I notice this pattern in myself</button>
+      <button class="option-btn" data-value="none">Occasionally under high stress</button>
+      <button class="option-btn" data-value="none">No, this does not describe me</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back">← Back</button>
+      <button class="btn-next" disabled id="seeResultsBtn">See My Results →</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- RESULTS -->
+<div class="results-card" id="resultsCard">
+  <div class="results-eyebrow">Your Terrain Check</div>
+  <div class="results-headline" id="resultsHeadline">Here is what your body is showing.</div>
+
+  <div class="burden-grid">
+    <div class="burden-item" id="burden_liver_protein">
+      <div class="burden-name">🔥 Liver Processing Burden</div>
+      <div class="burden-desc">Your liver is working overtime to convert protein waste (ammonia) into urea, neutralize acids, and process fats. When this chemical factory gets backed up, it cannot do its other jobs — including hormone regulation and T4 to T3 conversion.</div>
+    </div>
+    <div class="burden-item" id="burden_liver_hormone">
+      <div class="burden-name">⚡ Hormonal Traffic Jam</div>
+      <div class="burden-desc">Your liver regulates estrogen, cortisol, thyroid hormones, and more. When it is congested, these hormones do not get cleared — they recirculate. That is why your labs can look "normal" while your body is signaling otherwise.</div>
+    </div>
+    <div class="burden-item" id="burden_lymph_skin">
+      <div class="burden-name">🌊 Lymphatic Backup</div>
+      <div class="burden-desc">When the lymphatic system is stagnant, waste has nowhere to go. The body reroutes it outward through the skin, or inward as emotional heat. Skin symptoms and disproportionate emotional responses are often the same message in different languages.</div>
+    </div>
+    <div class="burden-item" id="burden_kidney">
+      <div class="burden-name">🫙 Kidney Filtration Concern</div>
+      <div class="burden-desc">Clear urine with no sediment often means the kidneys are not actively filtering lymphatic waste. The liver processes toxins, but it depends on the kidneys to carry them out. If the kidneys are not filtering, the liver has nowhere to send what it processes.</div>
+    </div>
+  </div>
+
+  <div class="correction-box" id="correctionBox">
+    <div class="correction-label">Your First Correction</div>
+    <div class="correction-text" id="correctionText"></div>
+  </div>
+
+  <div class="score-summary" id="scoreSummary"></div>
+
+  <button class="btn-restart" onclick="restartQuiz()">↺ Retake the Assessment</button>
+</div>
+
+<div class="footer-note">
+  This assessment is for educational purposes within the Detox Your Life Method Ministry.<br>It is not a medical diagnosis. It is a terrain read.
+</div>
+
+<script>
+  const questions = document.querySelectorAll('.q-card');
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+  const resultsCard = document.getElementById('resultsCard');
+
+  let answers = new Array(questions.length).fill(null);
+  let currentQ = 0;
+
+  function updateProgress(idx) {
+    const pct = ((idx) / questions.length) * 100;
+    progressFill.style.width = pct + '%';
+    progressLabel.textContent = idx < questions.length
+      ? `Question ${idx + 1} of ${questions.length}`
+      : 'Complete';
+  }
+
+  function showQuestion(idx) {
+    questions.forEach((q, i) => {
+      q.classList.toggle('active', i === idx);
+    });
+    updateProgress(idx);
+    currentQ = idx;
+    // restore selection state
+    const card = questions[idx];
+    const opts = card.querySelectorAll('.option-btn');
+    const nextBtn = card.querySelector('.btn-next');
+    opts.forEach((btn, i) => {
+      btn.classList.toggle('selected', answers[idx] === i);
+    });
+    nextBtn.disabled = answers[idx] === null;
+  }
+
+  questions.forEach((card, qIdx) => {
+    const opts = card.querySelectorAll('.option-btn');
+    const nextBtn = card.querySelector('.btn-next');
+    const backBtn = card.querySelector('.btn-back');
+
+    opts.forEach((btn, optIdx) => {
+      btn.addEventListener('click', () => {
+        opts.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        answers[qIdx] = optIdx;
+        nextBtn.disabled = false;
+      });
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (qIdx < questions.length - 1) {
+        showQuestion(qIdx + 1);
+      } else {
+        showResults();
+      }
+    });
+
+    if (backBtn) {
+      backBtn.addEventListener('click', () => {
+        if (qIdx > 0) showQuestion(qIdx - 1);
+      });
+    }
+  });
+
+  function showResults() {
+    document.getElementById('questionArea').style.display = 'none';
+    document.querySelector('.progress-wrap').style.display = 'none';
+    resultsCard.classList.add('active');
+    updateProgress(questions.length);
+
+    // Tally burdens from selected option data-values
+    const burdens = new Set();
+    questions.forEach((card, qIdx) => {
+      if (answers[qIdx] === null) return;
+      const opts = card.querySelectorAll('.option-btn');
+      const chosen = opts[answers[qIdx]];
+      const val = chosen.getAttribute('data-value');
+      if (val && val !== 'none') burdens.add(val);
+    });
+
+    let burdenCount = 0;
+    ['liver_protein', 'liver_hormone', 'lymph_skin', 'kidney'].forEach(key => {
+      const el = document.getElementById('burden_' + key);
+      if (burdens.has(key)) {
+        el.classList.add('show');
+        burdenCount++;
+      }
+    });
+
+    // Headline
+    const headline = document.getElementById('resultsHeadline');
+    if (burdenCount === 0) {
+      headline.textContent = 'Your terrain appears relatively clear right now.';
+    } else if (burdenCount === 1) {
+      headline.textContent = 'Your body is showing one area of terrain stress.';
+    } else if (burdenCount === 2) {
+      headline.textContent = 'Your body is showing two areas of terrain stress.';
+    } else {
+      headline.textContent = 'Your body is showing multiple areas of terrain stress — and they are connected.';
+    }
+
+    // First Correction
+    const correction = document.getElementById('correctionText');
+    if (burdens.has('kidney')) {
+      correction.innerHTML = '<strong>Priority one: get your kidneys filtering.</strong> The liver processes waste, but the kidneys carry it out. Until the kidneys are actively filtering, everything the liver processes has nowhere to go. Start with kidney herbs, increase water-rich fruits, and watch your urine for sediment.';
+    } else if (burdens.has('liver_protein')) {
+      correction.innerHTML = '<strong>Priority one: reduce the protein load.</strong> Every gram of animal protein that is not used for repair becomes ammonia — and ammonia is a two-organ tax. Begin reducing meat, eggs, and dairy. Let your liver stop processing waste and start processing hormones.';
+    } else if (burdens.has('liver_hormone')) {
+      correction.innerHTML = '<strong>Priority one: support bile flow.</strong> Your liver needs to move stagnant hormones out through bile and into the bowel. Increase bitter foods (dandelion, lemon), reduce cooked fats, and ensure you are having at least one full bowel movement per day.';
+    } else if (burdens.has('lymph_skin')) {
+      correction.innerHTML = '<strong>Priority one: move the lymph.</strong> The lymphatic system has no pump. It depends on movement, hydration, and astringent foods to flow. Begin dry brushing, increase grapes and citrus, and reduce mucus-forming foods.';
+    } else {
+      correction.innerHTML = 'Your terrain is relatively clear. Your next step is maintaining this — continuing water-rich foods, kidney support, and reducing acid-forming inputs before they accumulate.';
+    }
+
+    // Score summary
+    const summary = document.getElementById('scoreSummary');
+    summary.textContent = burdenCount === 0
+      ? 'No active terrain burdens flagged in this assessment.'
+      : `${burdenCount} terrain burden${burdenCount > 1 ? 's' : ''} flagged. This is not a verdict — it is a starting point. The body that created these conditions can correct them when given the right environment.`;
+  }
+
+  function restartQuiz() {
+    answers = new Array(questions.length).fill(null);
+    resultsCard.classList.remove('active');
+    document.getElementById('questionArea').style.display = 'block';
+    document.querySelector('.progress-wrap').style.display = 'block';
+    showQuestion(0);
+  }
+
+  showQuestion(0);
+</script>
+</body>
+</html>
