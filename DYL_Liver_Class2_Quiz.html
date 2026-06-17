@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DYL Method — Class 2 Quiz</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --soil: #2C1A0E;
+    --amber: #C8793A;
+    --gold: #E8A84A;
+    --moss: #3D5A3E;
+    --cream: #F9F3EA;
+    --clay: #D4A574;
+    --light: #FDF3E8;
+    --moss-bg: #EAF2EA;
+    --red: #8B1A1A;
+    --red-bg: #FDEAEA;
+    --blue: #2A4A6B;
+    --blue-bg: #E8EFF5;
+    --surface: #FFFFFF;
+    --border: rgba(44,26,14,0.1);
+    --warn-bg: #FFF8E1;
+    --warn: #B8860B;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--soil);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  .header {
+    background: var(--soil);
+    border-bottom: 3px solid var(--amber);
+    padding: 28px 24px 24px;
+    text-align: center;
+  }
+  .eyebrow {
+    font-size: 10px; font-weight: 600; letter-spacing: 3px;
+    color: var(--amber); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 5vw, 32px);
+    color: var(--cream); line-height: 1.2; margin-bottom: 8px;
+  }
+  .header p { font-size: 13px; color: var(--clay); max-width: 480px; margin: 0 auto; line-height: 1.6; }
+
+  .container { max-width: 680px; margin: 0 auto; padding: 0 20px; }
+
+  /* SCORE BAR */
+  .score-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 16px;
+    margin: 24px 0 20px;
+    position: sticky; top: 12px; z-index: 10;
+    box-shadow: 0 2px 12px rgba(44,26,14,0.08);
+  }
+  .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; color: var(--amber); min-width: 64px;
+  }
+  .score-right { flex: 1; }
+  .score-label { font-size: 13px; color: var(--soil); font-weight: 500; margin-bottom: 6px; }
+  .score-track {
+    height: 5px; background: rgba(44,26,14,0.08);
+    border-radius: 99px; overflow: hidden;
+  }
+  .score-fill {
+    height: 100%; background: var(--amber);
+    border-radius: 99px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* MODULE HEADERS */
+  .module-header {
+    display: flex; align-items: center; gap: 14px;
+    margin: 32px 0 16px;
+  }
+  .module-badge {
+    background: var(--soil);
+    color: var(--gold);
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 14px; border-radius: 99px;
+    white-space: nowrap;
+  }
+  .module-line { flex: 1; height: 1px; background: var(--border); }
+  .module-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; color: var(--soil);
+    margin-bottom: 4px;
+  }
+  .module-sub { font-size: 12px; color: var(--clay); }
+
+  /* QUESTION CARDS */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+  .q-number {
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    color: var(--clay); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .q-text {
+    font-size: 15px; color: var(--soil); font-weight: 500;
+    margin-bottom: 14px; line-height: 1.55;
+  }
+  .q-opts { display: flex; flex-direction: column; gap: 8px; }
+  .q-opt {
+    padding: 11px 14px; border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--light);
+    font-size: 13px; color: var(--soil);
+    cursor: pointer; text-align: left;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s; line-height: 1.4;
+  }
+  .q-opt:hover:not(:disabled) { border-color: var(--amber); background: #FDF3E8; }
+  .q-opt.correct {
+    background: var(--moss-bg); border-color: rgba(61,90,62,0.4);
+    color: var(--moss); font-weight: 500;
+  }
+  .q-opt.wrong {
+    background: var(--red-bg); border-color: rgba(139,26,26,0.3);
+    color: var(--red);
+  }
+  .q-opt.reveal-correct {
+    background: var(--moss-bg); border-color: rgba(61,90,62,0.4);
+    color: var(--moss);
+  }
+
+  .q-feedback {
+    font-size: 13px; color: var(--soil); line-height: 1.65;
+    margin-top: 12px; padding: 12px 16px;
+    background: var(--blue-bg);
+    border-left: 3px solid rgba(42,74,107,0.5);
+    border-radius: 0 6px 6px 0;
+    display: none;
+  }
+  .q-feedback.show { display: block; }
+  .q-feedback strong { color: var(--blue); font-weight: 500; }
+
+  /* SHOCKING TRUTH CARDS */
+  .shock-q .q-card {
+    border-color: rgba(139,26,26,0.2);
+    background: #FFFBFB;
+  }
+  .shock-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    color: var(--red); text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  /* RESULTS */
+  .results-screen {
+    display: none;
+    padding: 32px 0;
+  }
+  .results-screen.show { display: block; }
+
+  .results-card {
+    background: var(--soil);
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .results-icon { font-size: 48px; margin-bottom: 16px; }
+  .results-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 56px; color: var(--gold); line-height: 1;
+    margin-bottom: 8px;
+  }
+  .results-denom { font-size: 18px; color: var(--clay); margin-bottom: 16px; }
+  .results-message {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; color: var(--cream); line-height: 1.4;
+    font-style: italic; margin-bottom: 16px;
+  }
+  .results-sub { font-size: 13px; color: var(--clay); line-height: 1.6; }
+
+  .module-scores {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; margin-bottom: 20px;
+  }
+  @media (max-width: 400px) { .module-scores { grid-template-columns: 1fr; } }
+
+  .mod-score-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; text-align: center;
+  }
+  .mod-score-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; color: var(--clay); text-transform: uppercase; margin-bottom: 6px; }
+  .mod-score-num { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--amber); }
+  .mod-score-total { font-size: 12px; color: var(--clay); }
+
+  .retry-btn {
+    width: 100%; padding: 14px;
+    background: var(--amber); border: none; border-radius: 10px;
+    color: white; font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .retry-btn:hover { background: #B86A2A; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">DYL Method — Liver Series</div>
+  <h1>Class 2 Quiz</h1>
+  <p>How the Body Breaks Down — Modules 4, 5, and 6. Ten questions. No grades. Just terrain literacy.</p>
+</div>
+
+<div class="container">
+
+  <div class="score-bar">
+    <div class="score-num" id="scoreNum">0/10</div>
+    <div class="score-right">
+      <div class="score-label" id="scoreLabel">Answer each question to track your score.</div>
+      <div class="score-track">
+        <div class="score-fill" id="scoreFill"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="quizBody">
+
+    <!-- MODULE 4 -->
+    <div class="module-header">
+      <div class="module-badge">Module 4</div>
+      <div class="module-line"></div>
+    </div>
+    <div class="module-title">Blood Recycling — The Liver and Spleen Team</div>
+    <div class="module-sub" style="margin-bottom:4px;">Questions 1 – 3</div>
+
+    <div class="q-card" id="qcard-0">
+      <div class="q-number">Question 1 of 10</div>
+      <div class="q-text">How long does a red blood cell live before the spleen flags it for recycling?</div>
+      <div class="q-opts">
+        <button class="q-opt" onclick="answer(0,0,this)">About 30 days</button>
+        <button class="q-opt" onclick="answer(0,1,this)">About 120 days</button>
+        <button class="q-opt" onclick="answer(0,2,this)">About one year</button>
+        <button class="q-opt" onclick="answer(0,3,this)">About 7 days</button>
+      </div>
+      <div class="q-feedback" id="fb-0">Red blood cells live approximately <strong>120 days</strong>. After that the spleen dismantles them and sends the heme fragment to the liver for conversion into bilirubin.</div>
+    </div>
+
+    <div class="q-card" id="qcard-1">
+      <div class="q-number">Question 2 of 10</div>
+      <div class="q-text">When bilirubin cannot exit the body fast enough through bile, where does it go?</div>
+      <div class="q-opts">
+        <button class="q-opt" onclick="answer(1,0,this)">It is stored in fat tissue permanently</button>
+        <button class="q-opt" onclick="answer(1,1,this)">It backs up into the bloodstream and deposits in tissues</button>
+        <button class="q-opt" onclick="answer(1,2,this)">It is broken down by the kidneys automatically</button>
+        <button class="q-opt" onclick="answer(1,3,this)">It converts back into iron and is recycled</button>
+      </div>
+      <div class="q-feedback" id="fb-1">When bile flow is too slow or the liver is congested, bilirubin backs up into the <strong>bloodstream</strong> and begins depositing in tissues — first in the whites of the eyes, then on the skin. This is what jaundice looks like.</div>
+    </div>
+
+    <div class="q-card shock-q" id="qcard-2">
+      <div class="q-number">Question 3 of 10</div>
+      <div class="shock-label">⚡ Shocking truth question</div>
+      <div class="q-text">Jaundice — yellowing of the skin and eyes — is best described as:</div>
+      <div class="q-opts">
+        <button class="q-opt" onclick="answer(2,0,this)">A skin disease requiring topical treatment</button>
+        <button class="q-opt" onclick="answer(2,1,this)">An eye condition caused by UV exposure</button>
+        <button class="q-opt" onclick="answer(2,2,this)">A liver backlog — bilirubin depositing in tissues because it cannot exit through bile</button>
+        <button class="q-opt" onclick="answer(2,3,this)">A sign of vitamin A deficiency</button>
+      </div>
+      <div class="q-feedback" id="fb-2">Jaundice is <strong>not a skin condition</strong>. It is the liver's backlog showing up on the body's surface. The source is in the blood recycling chain — bilirubin cannot exit fast enough through bile and deposits in the tissues instead. Common drivers: high protein load, pharmaceutical drugs, alcohol, and dehydration.</div>
+    </div>
+
+    <!-- MODULE 5 -->
+    <div class="module-header">
+      <div class="module-badge">Module 5</div>
+      <div class="module-line"></div>
+    </div>
+    <div class="module-title">Protein = Acid = Workload</div>
+    <div class="module-sub" style="margin-bottom:4px;">Questions 4 – 6</div>
+
+    <div class="q-card" id="qcard-3">
+      <div class="q-number">Question 4 of 10</div>
+      <div class="q-text">When unused amino acids are broken down (deaminated), what toxic substance is produced?</div>
+      <div class="q-opts">
+        <button class="q-opt" onclick="answer(3,0,this)">Creatinine</button>
+        <button class="q-opt" onclick="answer(3,1,this)">Bilirubin</button>
+        <button class="q-opt" onclick="answer(3,2,this)">Ammonia</button>
+        <button class="q-opt" onclick="answer(3,3,this)">Cortisol</button>
+      </div>
+      <div class="q-feedback" id="fb-3">Deamination of unused amino acids produces <strong>ammonia</strong> — one of the most toxic substances the body makes. The liver then converts ammonia into urea, which the kidneys filter out through urine. Every protein source goes through this chain.</div>
+    </div>
+
+    <div class="q-card shock-q" id="qcard-4">
+      <div class="q-number">Question 5 of 10</div>
+      <div class="shock-label">⚡ Shocking truth question</div>
+      <div class="q-text">Why does Dr. Morse call meat "second-hand protein"?</div>
+      <div class="q-opts">
+        <button class="q-opt" onclick="answer(4,0,this)">Because meat is processed in a factory before you eat it</button>
+        <button class="q-opt" onclick="answer(4,1,this)">Because the body must demolish complex animal protein structures entirely before extracting simple amino acids — requiring far more energy than plant sources</button>
+        <button class="q-opt" onclick="answer(4,2,this)">Because meat protein has already been used by the animal</button>
+        <button class="q-opt" onclick="answer(4,3,this)">Because meat is lower in amino acids than vegetables</button>
+      </div>
+      <div class="q-feedback" id="fb-4">Dr. Morse calls meat second-hand protein because the body must <strong>demolish the entire protein structure</strong> — like tearing down a building to get to the bricks — before it can access simple amino acids. Plant proteins come pre-simplified and require far less processing. The extra work produces more ammonia, more acid, and more liver and kidney burden.</div>
+    </div>
+
+    <div class="q-card" id="qcard-5">
+      <div class="q-number">Question 6 of 10</div>
+      <div class="q-text">What does Dr. Morse's "two-organ tax" refer to?</div>
+      <div class="q-opts">
+        <button class="q-opt" onclick="answer(5,0,this)">The brain and heart working harder during stress</button>
+        <button class="q-opt" onclick="answer(5,1,this)">The stomach and pancreas both processing protein simultaneously</button>
+        <button class="q-opt" onclick="answer(5,2,this)">The liver converting ammonia to urea AND the kidneys filtering that urea — both organs taxed by every high-protein meal</button>
+        <button class="q-opt" onclick="answer(5,3,this)">The liver and gallbladder sharing the bile production load</button>
+      </div>
+      <div class="q-feedback" id="fb-5">Every high-protein meal taxes <strong>two organs simultaneously</strong>: the liver converts ammonia into urea (processing burden), and the kidneys filter that urea out of the blood (filtration burden). Neither organ gets to rest when protein load is chronic and high.</div>
+    </div>
+
+    <!-- MODULE 6 -->
+    <div class="module-header">
+      <div class="module-badge">Module 6</div>
+      <div class="module-line"></div>
+    </div>
+    <div class="module-title">Why Kidneys Crash</div>
+    <div class="module-sub" style="margin-bottom:4px;">Questions 7 – 10</div>
+
+    <div class="q-card shock-q" id="qcard-6">
+      <div class="q-number">Question 7 of 10</div>
+      <div class="shock-label">⚡ Shocking truth question</div>
+      <div class="q-text">You do not feel nephron (kidney filtering unit) damage until you have lost how much kidney function?</div>
+      <div class="q-opts">
+        <button class="q-opt" onclick="answer(6,0,this)">10%</button>
+        <button class="q-opt" onclick="answer(6,1,this)">30%</button>
+        <button class="q-opt" onclick="answer(6,2,this)">More than 60%</button>
+        <button class="q-opt" onclick="answer(6,3,this)">You feel it immediately when it begins</button>
+      </div>
+      <div class="q-feedback" id="fb-6">The body compensates silently. You do not feel nephron damage until <strong>more than 60% of kidney function is compromised</strong>. By the time symptoms appear — fatigue, swelling, nausea, itching — the kidneys have been under strain for a long time. This is why terrain monitoring before labs change matters.</div>
+    </div>
+
+    <div class="q-card" id="qcard-7">
+      <div class="q-number">Question 8 of 10</div>
+      <div class="q-text">Which of these is a symptom of uremia — nitrogenous waste building up in the bloodstream?</div>
+      <div class="q-opts">
+        <button class="q-opt" onclick="answer(7,0,this)">Sharp chest pain</button>
+        <button class="q-opt" onclick="answer(7,1,this)">Itchy skin, ammonia-smelling breath, fatigue, and fluid retention</button>
+        <button class="q-opt" onclick="answer(7,2,this)">Increased energy and mental clarity</button>
+        <button class="q-opt" onclick="answer(7,3,this)">Bright yellow urine only</button>
+      </div>
+      <div class="q-feedback" id="fb-7">Uremia produces a cluster of symptoms: <strong>itchy skin</strong> (urea crystals trying to exit through skin), <strong>ammonia-smelling breath</strong> (urea crossing into lung air sacs), <strong>fatigue and brain fog</strong> (toxic blood affecting cellular function), and <strong>fluid retention and swelling</strong> (kidneys cannot excrete excess fluid). These symptoms are often treated separately — but they share one source.</div>
+    </div>
+
+    <div class="q-card" id="qcard-8">
+      <div class="q-number">Question 9 of 10</div>
+      <div class="q-text">What does an elevated BUN (Blood Urea Nitrogen) number on a lab panel suggest?</div>
+      <div class="q-opts">
+        <button class="q-opt" onclick="answer(8,0,this)">The kidneys are filtering perfectly well</button>
+        <button class="q-opt" onclick="answer(8,1,this)">High protein intake creating a heavy urea load, or kidney compromise, or both</button>
+        <button class="q-opt" onclick="answer(8,2,this)">Low protein intake — the body needs more meat</button>
+        <button class="q-opt" onclick="answer(8,3,this)">The liver is producing too much bile</button>
+      </div>
+      <div class="q-feedback" id="fb-8">Elevated BUN reflects <strong>high protein intake creating excess urea</strong>, or kidney compromise reducing how much urea is cleared, or both simultaneously. BUN is one of the clearest lab signals of protein overconsumption and kidney stress. The terrain approach asks what is producing the urea — and reduces the source.</div>
+    </div>
+
+    <div class="q-card shock-q" id="qcard-9">
+      <div class="q-number">Question 10 of 10</div>
+      <div class="shock-label">⚡ Shocking truth question</div>
+      <div class="q-text">Creatinine is used as a kidney damage marker because:</div>
+      <div class="q-opts">
+        <button class="q-opt" onclick="answer(9,0,this)">It is produced by the liver and rises when the liver is inflamed</button>
+        <button class="q-opt" onclick="answer(9,1,this)">It is produced from muscle activity and excreted entirely by the kidneys — so when kidneys are damaged, creatinine rises in the blood</button>
+        <button class="q-opt" onclick="answer(9,2,this)">It measures how much protein you have eaten in the last 24 hours</button>
+        <button class="q-opt" onclick="answer(9,3,this)">It is a hormone produced by the adrenal glands during stress</button>
+      </div>
+      <div class="q-feedback" id="fb-9">Creatinine is produced from <strong>muscle activity</strong> and excreted <strong>entirely by the kidneys</strong>. Because it has no other exit route, when the nephrons are damaged and filtration slows — creatinine rises in the blood. Medicine waits until creatinine is significantly elevated before acting. The terrain model removes the burden before the labs catch up.</div>
+    </div>
+
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-screen" id="resultsScreen">
+    <div class="results-card">
+      <div class="results-icon" id="resultsIcon">🌿</div>
+      <div class="results-score" id="resultsScore">0</div>
+      <div class="results-denom">out of 10</div>
+      <div class="results-message" id="resultsMessage"></div>
+      <div class="results-sub" id="resultsSub"></div>
+    </div>
+
+    <div class="module-scores">
+      <div class="mod-score-card">
+        <div class="mod-score-label">Module 4</div>
+        <div class="mod-score-num" id="mod4score">—</div>
+        <div class="mod-score-total">out of 3</div>
+      </div>
+      <div class="mod-score-card">
+        <div class="mod-score-label">Module 5</div>
+        <div class="mod-score-num" id="mod5score">—</div>
+        <div class="mod-score-total">out of 3</div>
+      </div>
+      <div class="mod-score-card">
+        <div class="mod-score-label">Module 6</div>
+        <div class="mod-score-num" id="mod6score">—</div>
+        <div class="mod-score-total">out of 4</div>
+      </div>
+    </div>
+
+    <button class="retry-btn" onclick="retakeQuiz()">Retake the quiz</button>
+  </div>
+
+</div>
+
+<script>
+var answers = { 0:1, 1:1, 2:2, 3:2, 4:1, 5:2, 6:2, 7:1, 8:1, 9:1 };
+var feedbacks = [
+  'Red blood cells live approximately <strong>120 days</strong>. After that the spleen dismantles them and sends the heme fragment to the liver for conversion into bilirubin.',
+  'When bile flow is too slow or the liver is congested, bilirubin backs up into the <strong>bloodstream</strong> and begins depositing in tissues — first in the whites of the eyes, then on the skin. This is what jaundice looks like.',
+  'Jaundice is <strong>not a skin condition</strong>. It is the liver\'s backlog showing up on the body\'s surface. The source is in the blood recycling chain — bilirubin cannot exit fast enough through bile and deposits in the tissues. Common drivers: high protein load, pharmaceutical drugs, alcohol, and dehydration.',
+  'Deamination of unused amino acids produces <strong>ammonia</strong> — one of the most toxic substances the body makes. The liver then converts ammonia into urea, which the kidneys filter out through urine.',
+  'Dr. Morse calls meat second-hand protein because the body must <strong>demolish the entire protein structure</strong> before it can access simple amino acids. Plant proteins come pre-simplified and require far less processing — producing less ammonia, less acid, and less liver and kidney burden.',
+  'Every high-protein meal taxes <strong>two organs simultaneously</strong>: the liver converts ammonia into urea, and the kidneys filter that urea out of the blood. Neither organ gets to rest when protein load is chronically high.',
+  'The body compensates silently. You do not feel nephron damage until <strong>more than 60% of kidney function is compromised</strong>. By the time symptoms appear, the kidneys have been under strain for a long time.',
+  'Uremia produces a cluster of symptoms that are usually treated as separate problems: <strong>itchy skin, ammonia-smelling breath, fatigue and brain fog, and fluid retention and swelling</strong>. They share one source — nitrogenous waste building up in the bloodstream.',
+  'Elevated BUN reflects <strong>high protein intake creating excess urea</strong>, or kidney compromise reducing clearance, or both. It is one of the clearest lab signals of protein overconsumption. The terrain approach reduces the source.',
+  'Creatinine is produced from <strong>muscle activity</strong> and excreted <strong>entirely by the kidneys</strong>. When nephrons are damaged and filtration slows, creatinine rises in the blood. Medicine waits for significant elevation. The terrain model removes the burden before labs catch up.'
+];
+
+var userAnswers = {};
+var scored = {};
+
+function answer(qi, chosen, btn) {
+  if (userAnswers[qi] !== undefined) return;
+  userAnswers[qi] = chosen;
+
+  var opts = btn.closest('.q-opts').querySelectorAll('.q-opt');
+  opts.forEach(function(b) { b.disabled = true; });
+
+  var correct = answers[qi];
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    scored[qi] = 1;
+  } else {
+    btn.classList.add('wrong');
+    opts[correct].classList.add('reveal-correct');
+    scored[qi] = 0;
+  }
+
+  var fb = document.getElementById('fb-' + qi);
+  fb.innerHTML = feedbacks[qi];
+  fb.classList.add('show');
+
+  updateScore();
+
+  if (Object.keys(userAnswers).length === 10) {
+    setTimeout(showResults, 800);
+  }
+}
+
+function updateScore() {
+  var total = Object.values(scored).reduce(function(a,b){ return a+b; }, 0);
+  var count = Object.keys(scored).length;
+  document.getElementById('scoreNum').textContent = total + '/10';
+  document.getElementById('scoreFill').style.width = (total / 10 * 100) + '%';
+  if (count < 10) {
+    document.getElementById('scoreLabel').textContent = count + ' of 10 answered — ' + total + ' correct so far.';
+  }
+}
+
+function showResults() {
+  var total = Object.values(scored).reduce(function(a,b){ return a+b; }, 0);
+  var mod4 = (scored[0]||0) + (scored[1]||0) + (scored[2]||0);
+  var mod5 = (scored[3]||0) + (scored[4]||0) + (scored[5]||0);
+  var mod6 = (scored[6]||0) + (scored[7]||0) + (scored[8]||0) + (scored[9]||0);
+
+  document.getElementById('resultsScore').textContent = total;
+  document.getElementById('mod4score').textContent = mod4;
+  document.getElementById('mod5score').textContent = mod5;
+  document.getElementById('mod6score').textContent = mod6;
+
+  var icon, message, sub;
+  if (total === 10) {
+    icon = '🌿';
+    message = 'Perfect terrain literacy. You understand how the body breaks down — and that means you understand how it heals.';
+    sub = 'Every question in this quiz connects to a lab marker your doctor is already ordering. You now know what those numbers are measuring.';
+  } else if (total >= 7) {
+    icon = '✅';
+    message = 'Strong foundation. Review the questions you missed — they contain the most important clinical connections.';
+    sub = 'Look at your module breakdown. The module with the lowest score is where tonight\'s class will have the most impact.';
+  } else if (total >= 4) {
+    icon = '⚠️';
+    message = 'You are in the learning zone. The concepts you missed tonight are the ones that explain the symptoms your students bring to every class.';
+    sub = 'Retake the quiz after reviewing the feedback on each question. The answers are all in the explanations.';
+  } else {
+    icon = '🔄';
+    message = 'This is exactly where learning begins. Every question you missed is a conversation your body has been trying to have with you.';
+    sub = 'Read the feedback on each question carefully — then retake. This content will make sense the second time through.';
+  }
+
+  document.getElementById('resultsIcon').textContent = icon;
+  document.getElementById('resultsMessage').textContent = message;
+  document.getElementById('resultsSub').textContent = sub;
+  document.getElementById('scoreLabel').textContent = total + ' out of 10 correct.';
+
+  document.getElementById('resultsScreen').classList.add('show');
+  setTimeout(function() {
+    document.getElementById('resultsScreen').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 200);
+}
+
+function retakeQuiz() {
+  userAnswers = {};
+  scored = {};
+  document.getElementById('scoreNum').textContent = '0/10';
+  document.getElementById('scoreFill').style.width = '0%';
+  document.getElementById('scoreLabel').textContent = 'Answer each question to track your score.';
+  document.getElementById('resultsScreen').classList.remove('show');
+
+  document.querySelectorAll('.q-opt').forEach(function(b) {
+    b.disabled = false;
+    b.classList.remove('correct','wrong','reveal-correct');
+  });
+  document.querySelectorAll('.q-feedback').forEach(function(f) {
+    f.classList.remove('show');
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
