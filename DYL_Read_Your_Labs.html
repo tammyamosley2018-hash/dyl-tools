@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DYL Method — Read Your Labs</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --soil: #2C1A0E;
+    --amber: #C8793A;
+    --gold: #E8A84A;
+    --moss: #3D5A3E;
+    --cream: #F9F3EA;
+    --clay: #D4A574;
+    --light: #FDF3E8;
+    --moss-bg: #EAF2EA;
+    --red: #8B1A1A;
+    --red-bg: #FDEAEA;
+    --blue: #2A4A6B;
+    --blue-bg: #E8EFF5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--soil);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  .header {
+    background: var(--soil);
+    border-bottom: 3px solid var(--amber);
+    padding: 28px 24px 24px;
+    text-align: center;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 5vw, 30px);
+    color: var(--cream);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    font-size: 13px;
+    color: var(--clay);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .container { max-width: 680px; margin: 0 auto; padding: 0 20px; }
+
+  .intro-banner {
+    background: var(--blue-bg);
+    border-left: 4px solid var(--blue);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 24px 0;
+  }
+
+  .intro-banner .label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--blue);
+    margin-bottom: 6px;
+  }
+
+  .intro-banner p {
+    font-size: 14px;
+    color: var(--soil);
+    line-height: 1.6;
+  }
+
+  /* LAB CARDS */
+  .lab-card {
+    background: white;
+    border: 1px solid rgba(44,26,14,0.1);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .lab-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .lab-name-block { flex: 1; }
+
+  .lab-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--soil);
+    margin-bottom: 2px;
+  }
+
+  .lab-aka {
+    font-size: 11px;
+    color: var(--clay);
+    font-style: italic;
+  }
+
+  .lab-range-badge {
+    background: var(--light);
+    border: 1px solid rgba(200,121,58,0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .lab-range-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--clay);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .lab-range-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--amber);
+  }
+
+  /* SLIDER INPUT */
+  .slider-section { margin-bottom: 16px; }
+
+  .slider-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .slider-prompt {
+    font-size: 13px;
+    color: var(--soil);
+    font-weight: 500;
+  }
+
+  .slider-current {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--amber);
+    min-width: 60px;
+    text-align: right;
+  }
+
+  .slider-track {
+    position: relative;
+    height: 8px;
+    background: linear-gradient(90deg, #2E8B4A, #A8C840, #E8A020, #B84030, #8B1A1A);
+    border-radius: 99px;
+    margin-bottom: 8px;
+  }
+
+  input[type="range"] {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    transform: translateY(-50%);
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+    height: 20px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--soil);
+    border: 3px solid var(--cream);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    cursor: pointer;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--soil);
+    border: 3px solid var(--cream);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    cursor: pointer;
+  }
+
+  .slider-markers {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--clay);
+  }
+
+  /* READING OUTPUT */
+  .lab-reading {
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: none;
+  }
+
+  .lab-reading.visible { display: block; }
+  .lab-reading.optimal { background: var(--moss-bg); border: 1px solid rgba(61,90,62,0.3); }
+  .lab-reading.watch { background: rgba(232,168,74,0.1); border: 1px solid rgba(232,168,74,0.3); }
+  .lab-reading.concern { background: var(--red-bg); border: 1px solid rgba(139,26,26,0.2); }
+
+  .reading-status {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .reading-status.optimal { color: var(--moss); }
+  .reading-status.watch { color: #B8860B; }
+  .reading-status.concern { color: var(--red); }
+
+  .reading-terrain {
+    font-size: 14px;
+    color: var(--soil);
+    line-height: 1.6;
+  }
+
+  /* WHAT THIS MEANS */
+  .what-section {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(44,26,14,0.08);
+  }
+
+  .what-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--clay);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .what-text {
+    font-size: 13px;
+    color: var(--soil);
+    line-height: 1.6;
+  }
+
+  /* SUMMARY SECTION */
+  .summary-section {
+    background: var(--soil);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 24px;
+    display: none;
+  }
+
+  .summary-section.visible { display: block; }
+
+  .summary-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--cream);
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) { .summary-grid { grid-template-columns: 1fr 1fr; } }
+
+  .summary-dot {
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .summary-dot-name {
+    font-size: 10px;
+    color: var(--clay);
+    margin-bottom: 4px;
+  }
+
+  .summary-dot-status {
+    font-size: 18px;
+  }
+
+  .summary-message {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(200,121,58,0.3);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .summary-message p {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--cream);
+    line-height: 1.6;
+    font-style: italic;
+    text-align: center;
+  }
+
+  .disclaimer {
+    margin-top: 32px;
+    padding: 16px;
+    background: rgba(44,26,14,0.06);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--clay);
+    line-height: 1.6;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">DYL Method — Liver Class 2</div>
+  <h1>Read Your Labs</h1>
+  <p>Five markers your doctor ordered. What they actually mean for your liver, kidneys, and internal environment.</p>
+</div>
+
+<div class="container">
+
+  <div class="intro-banner">
+    <div class="label">📋 How to Use This</div>
+    <p>Find your most recent lab results. Slide each marker to your number. Read what your internal environment is communicating — in terrain language, not medical jargon.</p>
+  </div>
+
+  <!-- BUN -->
+  <div class="lab-card">
+    <div class="lab-card-header">
+      <div class="lab-name-block">
+        <div class="lab-name">BUN</div>
+        <div class="lab-aka">Blood Urea Nitrogen — the protein burden marker</div>
+      </div>
+      <div class="lab-range-badge">
+        <div class="lab-range-label">Standard Range</div>
+        <div class="lab-range-value">7–20 mg/dL</div>
+      </div>
+    </div>
+    <div class="slider-section">
+      <div class="slider-label-row">
+        <span class="slider-prompt">Move the slider to your BUN number:</span>
+        <span class="slider-current" id="bunDisplay">—</span>
+      </div>
+      <div class="slider-track">
+        <input type="range" min="0" max="60" value="0" step="1" id="bunSlider" oninput="updateLab('bun', this.value)">
+      </div>
+      <div class="slider-markers">
+        <span>0</span><span>15</span><span>30</span><span>45</span><span>60+</span>
+      </div>
+    </div>
+    <div class="lab-reading" id="bunReading">
+      <div class="reading-status" id="bunStatus"></div>
+      <div class="reading-terrain" id="bunTerrain"></div>
+      <div class="what-section">
+        <div class="what-label">What This Means for Your Terrain</div>
+        <div class="what-text" id="bunWhat"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATININE -->
+  <div class="lab-card">
+    <div class="lab-card-header">
+      <div class="lab-name-block">
+        <div class="lab-name">Creatinine</div>
+        <div class="lab-aka">The kidney filtration damage marker</div>
+      </div>
+      <div class="lab-range-badge">
+        <div class="lab-range-label">Standard Range</div>
+        <div class="lab-range-value">0.6–1.2 mg/dL</div>
+      </div>
+    </div>
+    <div class="slider-section">
+      <div class="slider-label-row">
+        <span class="slider-prompt">Move the slider to your Creatinine number:</span>
+        <span class="slider-current" id="creatDisplay">—</span>
+      </div>
+      <div class="slider-track">
+        <input type="range" min="0" max="50" value="0" step="1" id="creatSlider" oninput="updateLab('creat', this.value)">
+      </div>
+      <div class="slider-markers">
+        <span>0.0</span><span>0.6</span><span>1.2</span><span>2.4</span><span>5.0+</span>
+      </div>
+    </div>
+    <div class="lab-reading" id="creatReading">
+      <div class="reading-status" id="creatStatus"></div>
+      <div class="reading-terrain" id="creatTerrain"></div>
+      <div class="what-section">
+        <div class="what-label">What This Means for Your Terrain</div>
+        <div class="what-text" id="creatWhat"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BILIRUBIN -->
+  <div class="lab-card">
+    <div class="lab-card-header">
+      <div class="lab-name-block">
+        <div class="lab-name">Bilirubin (Total)</div>
+        <div class="lab-aka">The liver recycling and bile flow marker</div>
+      </div>
+      <div class="lab-range-badge">
+        <div class="lab-range-label">Standard Range</div>
+        <div class="lab-range-value">0.1–1.2 mg/dL</div>
+      </div>
+    </div>
+    <div class="slider-section">
+      <div class="slider-label-row">
+        <span class="slider-prompt">Move the slider to your Bilirubin number:</span>
+        <span class="slider-current" id="biliDisplay">—</span>
+      </div>
+      <div class="slider-track">
+        <input type="range" min="0" max="50" value="0" step="1" id="biliSlider" oninput="updateLab('bili', this.value)">
+      </div>
+      <div class="slider-markers">
+        <span>0.0</span><span>0.6</span><span>1.2</span><span>2.5</span><span>5.0+</span>
+      </div>
+    </div>
+    <div class="lab-reading" id="biliReading">
+      <div class="reading-status" id="biliStatus"></div>
+      <div class="reading-terrain" id="biliTerrain"></div>
+      <div class="what-section">
+        <div class="what-label">What This Means for Your Terrain</div>
+        <div class="what-text" id="biliWhat"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALT -->
+  <div class="lab-card">
+    <div class="lab-card-header">
+      <div class="lab-name-block">
+        <div class="lab-name">ALT</div>
+        <div class="lab-aka">Alanine Aminotransferase — the liver cell damage marker</div>
+      </div>
+      <div class="lab-range-badge">
+        <div class="lab-range-label">Standard Range</div>
+        <div class="lab-range-value">7–56 U/L</div>
+      </div>
+    </div>
+    <div class="slider-section">
+      <div class="slider-label-row">
+        <span class="slider-prompt">Move the slider to your ALT number:</span>
+        <span class="slider-current" id="altDisplay">—</span>
+      </div>
+      <div class="slider-track">
+        <input type="range" min="0" max="100" value="0" step="1" id="altSlider" oninput="updateLab('alt', this.value)">
+      </div>
+      <div class="slider-markers">
+        <span>0</span><span>28</span><span>56</span><span>100</span><span>200+</span>
+      </div>
+    </div>
+    <div class="lab-reading" id="altReading">
+      <div class="reading-status" id="altStatus"></div>
+      <div class="reading-terrain" id="altTerrain"></div>
+      <div class="what-section">
+        <div class="what-label">What This Means for Your Terrain</div>
+        <div class="what-text" id="altWhat"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AST -->
+  <div class="lab-card">
+    <div class="lab-card-header">
+      <div class="lab-name-block">
+        <div class="lab-name">AST</div>
+        <div class="lab-aka">Aspartate Aminotransferase — liver and heart stress marker</div>
+      </div>
+      <div class="lab-range-badge">
+        <div class="lab-range-label">Standard Range</div>
+        <div class="lab-range-value">10–40 U/L</div>
+      </div>
+    </div>
+    <div class="slider-section">
+      <div class="slider-label-row">
+        <span class="slider-prompt">Move the slider to your AST number:</span>
+        <span class="slider-current" id="astDisplay">—</span>
+      </div>
+      <div class="slider-track">
+        <input type="range" min="0" max="100" value="0" step="1" id="astSlider" oninput="updateLab('ast', this.value)">
+      </div>
+      <div class="slider-markers">
+        <span>0</span><span>20</span><span>40</span><span>80</span><span>100+</span>
+      </div>
+    </div>
+    <div class="lab-reading" id="astReading">
+      <div class="reading-status" id="astStatus"></div>
+      <div class="reading-terrain" id="astTerrain"></div>
+      <div class="what-section">
+        <div class="what-label">What This Means for Your Terrain</div>
+        <div class="what-text" id="astWhat"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-section" id="summary">
+    <div class="summary-title">Your Lab Summary</div>
+    <div class="summary-grid" id="summaryGrid"></div>
+    <div class="summary-message">
+      <p id="summaryMessage"></p>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    This tool is for educational purposes only and does not constitute medical advice. DYL Method teaches terrain-based health literacy — always work with a qualified healthcare provider for diagnosis and treatment decisions.
+  </div>
+
+</div>
+
+<script>
+  const labs = { bun: null, creat: null, bili: null, alt: null, ast: null };
+
+  const labConfig = {
+    bun: {
+      display: 'bunDisplay', reading: 'bunReading', status: 'bunStatus',
+      terrain: 'bunTerrain', what: 'bunWhat',
+      // slider 0-60, maps to 0-60 mg/dL
+      toValue: v => parseInt(v),
+      format: v => v + ' mg/dL',
+      ranges: [
+        { max: 15, level: 'optimal', status: '✅ Optimal Range', terrain: 'Your liver is converting protein byproducts efficiently. Your kidneys are clearing urea without significant backlog. This is the range where healing and repair can happen alongside normal function.', what: 'Low BUN indicates manageable protein load and functional kidney filtration. Your internal environment has room to work.' },
+        { max: 25, level: 'watch', status: '⚠️ Worth Watching', terrain: 'Your protein load is creating a moderate urea burden. Your liver and kidneys are working harder than the optimal range. This is not an emergency — it is a signal to look at daily protein intake.', what: 'BUN in this range often reflects a diet high in animal protein. Reducing one protein source per day can shift this number meaningfully within weeks.' },
+        { max: 60, level: 'concern', status: '🚨 Elevated — Pay Attention', terrain: 'Your BUN is elevated. Your kidneys are filtering a heavy nitrogen load. This is the number your doctor should be discussing with you in relation to what you are eating — not just monitoring over time.', what: 'Elevated BUN is one of the clearest lab signals of protein overconsumption and kidney stress. The terrain approach asks: what is producing this urea? Reduce the source, support the kidneys, and watch the number respond.' },
+      ]
+    },
+    creat: {
+      display: 'creatDisplay', reading: 'creatReading', status: 'creatStatus',
+      terrain: 'creatTerrain', what: 'creatWhat',
+      // slider 0-50, maps to 0.0-5.0
+      toValue: v => (parseInt(v) * 0.1).toFixed(1),
+      format: v => v + ' mg/dL',
+      ranges: [
+        { max: 12, level: 'optimal', status: '✅ Optimal Range', terrain: 'Your kidneys are filtering creatinine efficiently. Nephron function is intact. Your internal environment is supporting proper waste clearance.', what: 'Normal creatinine means your filtration units (nephrons) are doing their job. Maintain this by keeping protein load moderate and staying well hydrated.' },
+        { max: 24, level: 'watch', status: '⚠️ Worth Watching', terrain: 'Creatinine is trending toward the upper range. Your nephrons may be under mild stress. This is the zone where dietary changes have the greatest impact — before damage becomes measurable.', what: 'Rising creatinine is often the first quiet signal that kidney filtration is being strained. Increase water, reduce animal protein, and retest in 90 days.' },
+        { max: 50, level: 'concern', status: '🚨 Elevated — Act Now', terrain: 'Elevated creatinine indicates that your nephrons are struggling to filter waste efficiently. Remember: you do not feel this until more than 60% of nephron function is compromised. This number is your early warning system.', what: 'Medicine waits until creatinine is significantly elevated before intervening. The terrain model responds at the first elevation — remove the burden that is driving the damage.' },
+      ]
+    },
+    bili: {
+      display: 'biliDisplay', reading: 'biliReading', status: 'biliStatus',
+      terrain: 'biliTerrain', what: 'biliWhat',
+      toValue: v => (parseInt(v) * 0.1).toFixed(1),
+      format: v => v + ' mg/dL',
+      ranges: [
+        { max: 12, level: 'optimal', status: '✅ Optimal Range', terrain: 'Your liver is recycling old red blood cells and processing bilirubin efficiently. Bile flow is adequate and the liver-spleen recycling team is functioning well.', what: 'Normal bilirubin means your liver is processing heme from old red blood cells and exporting it through bile without backlog. Keep it this way by supporting bile flow with hydration and bitter foods.' },
+        { max: 25, level: 'watch', status: '⚠️ Worth Watching', terrain: 'Bilirubin is trending higher. Your liver may be congested enough that bile flow is slower than ideal. This can affect fat digestion, hormone excretion, and the alkalizing capacity of your digestive tract.', what: 'Elevated bilirubin often appears before any other liver marker rises. It is the canary in the coal mine. Support bile flow with dandelion root, citrus fruits, and reduced fat load.' },
+        { max: 50, level: 'concern', status: '🚨 Elevated — Liver Is Backed Up', terrain: 'Your bilirubin is significantly elevated. This is the liver communicating that it cannot process and export waste fast enough. If you have noticed yellowing of the skin or eyes, this is why. Bilirubin is depositing in tissues instead of leaving through bile.', what: 'Jaundice is not a skin condition. It is a liver condition. At this level, the priority is removing what is congesting the liver — high protein, processed fats, alcohol, and pharmaceutical load — and opening the eliminative channels: kidneys, colon, and skin.' },
+      ]
+    },
+    alt: {
+      display: 'altDisplay', reading: 'altReading', status: 'altStatus',
+      terrain: 'altTerrain', what: 'altWhat',
+      toValue: v => parseInt(v),
+      format: v => v + ' U/L',
+      ranges: [
+        { max: 40, level: 'optimal', status: '✅ Optimal Range', terrain: 'Your liver cells (hepatocytes) are intact and not releasing distress signals. ALT stays inside liver cells when the liver is healthy — low ALT means the cells are not being damaged.', what: 'ALT is specific to liver cells. A normal reading means your liver tissue is not under active inflammatory assault. Maintain this with a low animal protein, low synthetic chemical diet.' },
+        { max: 70, level: 'watch', status: '⚠️ Worth Watching', terrain: 'ALT is mildly elevated. Some liver cells are releasing this enzyme — an early indicator of inflammation or congestion. Your liver is communicating before the damage becomes serious.', what: 'Mildly elevated ALT often responds to dietary change within 60–90 days. Reduce the three main drivers: alcohol, animal protein, and pharmaceutical drugs (especially aspirin-type medications).' },
+        { max: 100, level: 'concern', status: '🚨 Elevated — Liver Cell Stress', terrain: 'ALT is significantly elevated. Your liver cells are under inflammatory stress and releasing this enzyme into the bloodstream at a rate that cannot be ignored. This is what hepatitis, fatty liver, and cirrhosis look like on labs before they become diagnoses.', what: 'At this level, the liver needs immediate burden reduction. Every aspirin-type drug, every high-protein meal, every alcoholic drink adds to the inflammatory load driving this number. The terrain model focuses on removal, not addition.' },
+      ]
+    },
+    ast: {
+      display: 'astDisplay', reading: 'astReading', status: 'astStatus',
+      terrain: 'astTerrain', what: 'astWhat',
+      toValue: v => parseInt(v),
+      format: v => v + ' U/L',
+      ranges: [
+        { max: 35, level: 'optimal', status: '✅ Optimal Range', terrain: 'AST is in the normal range. Your liver and heart muscle cells are not releasing distress signals. AST rises when liver or heart tissue is under significant inflammatory or acidic stress.', what: 'Normal AST alongside normal ALT is reassuring for liver and cardiac tissue health. AST can rise from intense exercise, so context matters — but a consistently normal AST at rest is a positive sign.' },
+        { max: 65, level: 'watch', status: '⚠️ Worth Watching', terrain: 'AST is trending elevated. This enzyme is found in liver cells, heart muscle cells, and kidney cells. An elevation here means at least one of those tissues is under stress. If ALT is also elevated, the liver is the likely primary site.', what: 'When both AST and ALT are elevated together, the liver is the prime suspect. When AST is elevated alone, look at heart and kidney stress too. Either way, the internal environment needs attention.' },
+        { max: 100, level: 'concern', status: '🚨 Elevated — Significant Tissue Stress', terrain: 'AST is significantly elevated. Liver cells, heart muscle cells, or kidney cells are releasing this enzyme in quantity. This is a signal that multiple tissues may be under acid stress simultaneously.', what: 'High AST is a systemic signal. Drugs — especially antibiotics, aspirin, and heart medications — are documented drivers of AST elevation. Acidosis from high protein and processed food consumption compounds the effect. The terrain response: remove the drivers, alkalize the environment.' },
+      ]
+    }
+  };
+
+  function updateLab(key, rawValue) {
+    const config = labConfig[key];
+    const value = config.toValue(rawValue);
+    labs[key] = parseFloat(value);
+
+    document.getElementById(config.display).textContent = config.format(value);
+
+    const numVal = parseFloat(value);
+    const reading = document.getElementById(config.reading);
+    reading.className = 'lab-reading visible';
+
+    let matchedRange = config.ranges[config.ranges.length - 1];
+    for (const range of config.ranges) {
+      if (parseInt(rawValue) <= range.max) { matchedRange = range; break; }
+    }
+
+    reading.classList.add(matchedRange.level);
+    document.getElementById(config.status).textContent = matchedRange.status;
+    document.getElementById(config.status).className = 'reading-status ' + matchedRange.level;
+    document.getElementById(config.terrain).textContent = matchedRange.terrain;
+    document.getElementById(config.what).textContent = matchedRange.what;
+
+    updateSummary();
+  }
+
+  function updateSummary() {
+    const filled = Object.values(labs).filter(v => v !== null).length;
+    if (filled < 2) return;
+
+    const summary = document.getElementById('summary');
+    summary.classList.add('visible');
+
+    const grid = document.getElementById('summaryGrid');
+    const labNames = { bun: 'BUN', creat: 'Creatinine', bili: 'Bilirubin', alt: 'ALT', ast: 'AST' };
+
+    grid.innerHTML = '';
+    let concerns = 0; let watches = 0; let optimals = 0;
+
+    Object.entries(labs).forEach(([key, val]) => {
+      if (val === null) return;
+      const config = labConfig[key];
+      const slider = document.getElementById(key + 'Slider');
+      let level = 'optimal';
+      for (const range of config.ranges) {
+        if (parseInt(slider.value) <= range.max) { level = range.level; break; }
+      }
+      if (level === 'concern') concerns++;
+      else if (level === 'watch') watches++;
+      else optimals++;
+
+      const dot = document.createElement('div');
+      dot.className = 'summary-dot';
+      const emoji = level === 'optimal' ? '✅' : level === 'watch' ? '⚠️' : '🚨';
+      dot.innerHTML = `<div class="summary-dot-name">${labNames[key]}</div><div class="summary-dot-status">${emoji}</div>`;
+      grid.appendChild(dot);
+    });
+
+    const msg = document.getElementById('summaryMessage');
+    if (concerns >= 2) {
+      msg.textContent = 'Multiple markers are elevated. Your body has been communicating this for some time. The terrain model asks one question: what is driving these numbers? Start there.';
+    } else if (concerns === 1 || watches >= 2) {
+      msg.textContent = 'Your labs are showing early terrain stress. This is the window where dietary changes have the greatest leverage. One precise correction this week shifts more terrain than any supplement.';
+    } else {
+      msg.textContent = 'Your markers are in a manageable range. The goal now is consistency — the decisions you make this week either protect this terrain or erode it. You are the variable.';
+    }
+  }
+</script>
+</body>
+</html>

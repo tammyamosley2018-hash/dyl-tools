@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DYL Method — Where Did This Come From?</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --soil: #2C1A0E;
+    --amber: #C8793A;
+    --gold: #E8A84A;
+    --moss: #3D5A3E;
+    --cream: #F9F3EA;
+    --clay: #D4A574;
+    --light: #FDF3E8;
+    --moss-bg: #EAF2EA;
+    --red: #8B1A1A;
+    --red-bg: #FDEAEA;
+    --blue: #2A4A6B;
+    --blue-bg: #E8EFF5;
+    --surface: #FFFFFF;
+    --border: rgba(44,26,14,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--soil);
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(160deg, #1A0C05 0%, #2C1A0E 100%);
+    border-bottom: 3px solid var(--amber);
+    padding: 32px 24px 28px;
+    text-align: center;
+  }
+  .eyebrow {
+    font-size: 10px; font-weight: 600; letter-spacing: 3px;
+    color: var(--amber); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 5vw, 38px);
+    color: var(--cream); line-height: 1.2; margin-bottom: 10px;
+  }
+  .header p { font-size: 14px; color: var(--clay); max-width: 480px; margin: 0 auto; line-height: 1.7; }
+
+  .container { max-width: 680px; margin: 0 auto; padding: 0 20px; }
+
+  /* SCREENS */
+  .screen { display: none; padding-top: 32px; }
+  .screen.active { display: block; }
+
+  /* SYMPTOM PICKER */
+  .pick-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 2px;
+    color: var(--clay); text-transform: uppercase; margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .symptom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 480px) { .symptom-grid { grid-template-columns: 1fr; } }
+
+  .symptom-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(200,121,58,0.25);
+    border-radius: 12px;
+    padding: 20px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .symptom-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(200,121,58,0.08);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .symptom-card:hover { border-color: var(--amber); transform: translateY(-2px); }
+  .symptom-card:hover::before { opacity: 1; }
+
+  .symptom-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+  .symptom-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; color: var(--cream); margin-bottom: 4px;
+  }
+  .symptom-sub { font-size: 12px; color: var(--clay); line-height: 1.4; }
+
+  .disclaimer-note {
+    background: rgba(42,74,107,0.2);
+    border-left: 3px solid rgba(42,74,107,0.6);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 12px; color: var(--clay); line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  /* JOURNEY SCREENS */
+  .journey-header {
+    margin-bottom: 24px;
+  }
+  .journey-eyebrow {
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    color: var(--amber); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .journey-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 4vw, 30px);
+    color: var(--cream); line-height: 1.3; margin-bottom: 10px;
+  }
+  .journey-intro {
+    font-size: 14px; color: var(--clay); line-height: 1.7;
+  }
+
+  /* STEP CARDS */
+  .step-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(200,121,58,0.2);
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 14px;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .step-card.revealed { opacity: 1; transform: translateY(0); }
+
+  .step-number {
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    color: var(--amber); text-transform: uppercase; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .step-number::after {
+    content: ''; flex: 1; height: 1px;
+    background: rgba(200,121,58,0.25);
+  }
+
+  .step-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; color: var(--cream); margin-bottom: 10px;
+  }
+  .step-body {
+    font-size: 14px; color: var(--clay); line-height: 1.75;
+  }
+  .step-body strong { color: var(--gold); font-weight: 500; }
+
+  .step-reveal-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 14px;
+    background: rgba(200,121,58,0.15);
+    border: 1px solid rgba(200,121,58,0.4);
+    border-radius: 8px;
+    color: var(--amber);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .step-reveal-btn:hover { background: rgba(200,121,58,0.25); }
+
+  /* TRUTH MOMENT */
+  .truth-card {
+    background: rgba(139,26,26,0.15);
+    border: 1px solid rgba(139,26,26,0.4);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 14px;
+    opacity: 0; transform: translateY(12px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .truth-card.revealed { opacity: 1; transform: translateY(0); }
+
+  .truth-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    color: var(--red); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .truth-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; color: var(--cream); line-height: 1.5;
+    font-style: italic;
+  }
+
+  /* REFLECTION */
+  .reflection-card {
+    background: rgba(61,90,62,0.15);
+    border: 1px solid rgba(61,90,62,0.4);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    opacity: 0; transform: translateY(12px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .reflection-card.revealed { opacity: 1; transform: translateY(0); }
+
+  .reflection-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    color: var(--moss); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .reflection-q {
+    font-size: 15px; color: var(--cream); line-height: 1.6; margin-bottom: 14px;
+  }
+  .reflection-input {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .reflection-input::placeholder { color: rgba(249,243,234,0.3); }
+  .reflection-input:focus { border-color: var(--amber); }
+
+  /* NAV BUTTONS */
+  .nav-row {
+    display: flex; gap: 10px; margin-top: 10px;
+    opacity: 0; transform: translateY(8px);
+    transition: opacity 0.4s ease 0.2s, transform 0.4s ease 0.2s;
+  }
+  .nav-row.revealed { opacity: 1; transform: translateY(0); }
+
+  .btn-back {
+    padding: 12px 20px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    color: var(--clay);
+    font-family: 'Inter', sans-serif; font-size: 13px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-back:hover { border-color: var(--amber); color: var(--amber); }
+
+  .btn-explore {
+    flex: 1;
+    padding: 12px 20px;
+    background: var(--amber);
+    border: none; border-radius: 8px;
+    color: white;
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-explore:hover { background: #B86A2A; }
+
+  /* PROGRESS DOTS */
+  .progress-dots {
+    display: flex; justify-content: center; gap: 6px;
+    margin-bottom: 28px;
+  }
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); transition: background 0.3s;
+  }
+  .dot.active { background: var(--amber); }
+  .dot.done { background: rgba(200,121,58,0.4); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">DYL Method — Liver Class 2 • Module 4</div>
+  <h1>Where Did This Come From?</h1>
+  <p>Pick a symptom you recognize. We will trace it all the way back to where it actually started — inside your blood recycling chain.</p>
+</div>
+
+<div class="container">
+
+  <!-- SCREEN 0: SYMPTOM PICKER -->
+  <div class="screen active" id="screen-0">
+    <p class="pick-label">Choose the symptom you recognize most</p>
+
+    <div class="symptom-grid">
+      <div class="symptom-card" onclick="startJourney('yellow')">
+        <span class="symptom-icon">👁️</span>
+        <div class="symptom-name">Yellow eyes or skin</div>
+        <div class="symptom-sub">Yellowing you can see in the mirror</div>
+      </div>
+      <div class="symptom-card" onclick="startJourney('itch')">
+        <span class="symptom-icon">🔥</span>
+        <div class="symptom-name">Itchy skin — no rash</div>
+        <div class="symptom-sub">Itching with no visible cause</div>
+      </div>
+      <div class="symptom-card" onclick="startJourney('breath')">
+        <span class="symptom-icon">💨</span>
+        <div class="symptom-name">Ammonia breath</div>
+        <div class="symptom-sub">Breath that smells like chemicals or urine</div>
+      </div>
+      <div class="symptom-card" onclick="startJourney('fatigue')">
+        <span class="symptom-icon">🌫️</span>
+        <div class="symptom-name">Fatigue & brain fog</div>
+        <div class="symptom-sub">Tired that sleep does not fix</div>
+      </div>
+      <div class="symptom-card" onclick="startJourney('swelling')">
+        <span class="symptom-icon">🦶</span>
+        <div class="symptom-name">Swollen ankles or feet</div>
+        <div class="symptom-sub">Puffiness that appears by end of day</div>
+      </div>
+      <div class="symptom-card" onclick="startJourney('stool')">
+        <span class="symptom-icon">🟤</span>
+        <div class="symptom-name">Pale or clay-colored stool</div>
+        <div class="symptom-sub">Stool that has lost its brown color</div>
+      </div>
+    </div>
+
+    <div class="disclaimer-note">
+      This tool is for educational purposes only and does not replace medical advice. DYL Method teaches terrain-based health literacy — always work with a qualified healthcare provider for diagnosis and treatment.
+    </div>
+  </div>
+
+  <!-- JOURNEY SCREENS — built by JS -->
+  <div id="journey-container"></div>
+
+</div>
+
+<script>
+var journeys = {
+
+  yellow: {
+    title: 'Yellow eyes or skin',
+    eyebrow: 'You selected — yellowing of eyes or skin',
+    intro: 'Most people are told this is a liver problem. That is true — but it tells you almost nothing. Tonight we trace exactly what is happening and why it shows up on your face.',
+    steps: [
+      {
+        num: 'The recycling chain — step 1',
+        title: 'Your spleen is breaking down old red blood cells right now',
+        body: 'Every red blood cell lives for about <strong>120 days</strong>. After that, the spleen flags it as spent and breaks it apart. This happens continuously — about 2 million cells per second. The iron-rich heme fragment gets sent to the liver for the next stage.'
+      },
+      {
+        num: 'The recycling chain — step 2',
+        title: 'The liver converts heme into bilirubin',
+        body: 'Your liver takes the heme fragment and converts it into <strong>bilirubin</strong> — a yellow-orange pigment. Normally, the liver packages bilirubin into bile and sends it into the small intestine. From there it exits through stool. This process runs every single day without you feeling it.'
+      },
+      {
+        num: 'The recycling chain — step 3',
+        title: 'When the liver is backed up, bilirubin cannot exit',
+        body: 'If the liver is congested — from high protein load, pharmaceutical drugs, alcohol, or processed fats — bilirubin builds up faster than bile can carry it out. It backs up into the bloodstream. As levels rise, it begins to deposit in tissues. It shows up first in the <strong>whites of the eyes</strong>. Then on the skin.'
+      },
+      {
+        num: 'The answer',
+        title: 'The yellow you see is bilirubin — backed up traffic',
+        body: 'The color you see in the mirror is not a skin condition and it is not an eye condition. It is <strong>bilirubin depositing in tissues</strong> because the liver cannot process and export it fast enough. Your doctor calls this jaundice. The terrain model calls it a traffic jam. The question is: what is causing the congestion?'
+      }
+    ],
+    truth: 'Jaundice is the liver\'s backlog showing up on your body\'s surface. The symptom is on the skin. The source is in the recycling chain.',
+    reflection: 'If yellow eyes or skin is the liver\'s way of showing you it is backed up — what would you change about what goes into your body this week to reduce that backlog?'
+  },
+
+  itch: {
+    title: 'Itchy skin with no rash',
+    eyebrow: 'You selected — itchy skin with no visible cause',
+    intro: 'You have probably been told to try a different soap, a different detergent, or a cortisone cream. Tonight we trace where the itch is actually coming from.',
+    steps: [
+      {
+        num: 'The recycling chain — step 1',
+        title: 'Bilirubin is supposed to exit through bile',
+        body: 'When old red blood cells are broken down, the liver converts the heme into <strong>bilirubin</strong> and packages it into bile for removal through the intestines. This is the normal route out. About one liter of bile carries this waste out of the body every single day.'
+      },
+      {
+        num: 'The recycling chain — step 2',
+        title: 'When bile flow slows, bilirubin builds up in the blood',
+        body: 'Bile flow depends on hydration, fat intake, and liver health. When the liver is congested — from chronic protein load, pharmaceutical drugs, or processed fats — <strong>bile becomes thicker and slower</strong>. Bilirubin backs up into the bloodstream instead of exiting through the intestines.'
+      },
+      {
+        num: 'The recycling chain — step 3',
+        title: 'Bilirubin in the bloodstream irritates nerve endings in the skin',
+        body: 'When bilirubin levels rise in the blood, it deposits in tissues including the skin. Bilirubin is a <strong>bile acid salt</strong> — it irritates the nerve endings just beneath the skin surface. This creates the sensation of itching with no visible rash, no infection, and no external cause. The itch is real. The cause is internal.'
+      },
+      {
+        num: 'The answer',
+        title: 'Your skin is trying to eliminate what the liver and kidneys cannot',
+        body: 'The skin is one of the body\'s four eliminative organs. When the liver and kidneys are backed up, <strong>the body tries to push waste through the skin instead</strong>. The itching is a signal — not a skin problem. It is your elimination system under pressure.'
+      }
+    ],
+    truth: 'The itch with no rash is bilirubin irritating nerve endings in your skin. Your body is trying to exit waste through a door that was not designed to carry this much.',
+    reflection: 'Your skin has been trying to tell you something. If this itch is waste trying to exit — what would it mean to reduce the waste load instead of treating the itch?'
+  },
+
+  breath: {
+    title: 'Ammonia breath',
+    eyebrow: 'You selected — breath that smells like chemicals or ammonia',
+    intro: 'You may have been told to use mouthwash, see a dentist, or try a different diet. Tonight we follow the chemistry that is actually creating the smell.',
+    steps: [
+      {
+        num: 'The protein chain — step 1',
+        title: 'Every protein you eat produces ammonia as a byproduct',
+        body: 'When your body breaks down protein — any protein, from any source — it strips the nitrogen off unused amino acids. This process is called <strong>deamination</strong>. What it produces is ammonia. Ammonia is one of the most toxic substances your own body makes.'
+      },
+      {
+        num: 'The protein chain — step 2',
+        title: 'The liver converts ammonia into urea for removal',
+        body: 'A healthy liver converts ammonia into <strong>urea</strong> — a less toxic nitrogen compound that the kidneys can filter out through urine. This is the normal route. But when protein load is chronically high, the liver cannot convert fast enough. Ammonia begins to accumulate.'
+      },
+      {
+        num: 'The protein chain — step 3',
+        title: 'When urea builds up in the blood, it crosses into lung tissue',
+        body: 'Urea and ammonia that cannot be excreted fast enough begin to circulate in the bloodstream. The lungs are a gas exchange organ — they are in constant contact with the blood. <strong>Ammonia and urea compounds cross into the air sacs of the lungs and are exhaled</strong>. That is the chemical smell on the breath.'
+      },
+      {
+        num: 'The answer',
+        title: 'The smell on your breath is your liver\'s workload made audible',
+        body: 'Ammonia breath is not a dental problem. It is not a gut problem. It is the <strong>two-organ tax visible in your exhale</strong> — the liver is converting ammonia to urea, the kidneys cannot filter it fast enough, and the lungs are releasing the overflow. Mouthwash does not reach this.'
+      }
+    ],
+    truth: 'Ammonia breath means your liver and kidneys are carrying a protein load they cannot clear. The smell is not coming from your mouth. It is coming from your blood.',
+    reflection: 'If the smell on your breath is a direct output of your protein load — what would happen to that smell if you reduced animal protein for 7 days straight?'
+  },
+
+  fatigue: {
+    title: 'Fatigue and brain fog',
+    eyebrow: 'You selected — fatigue that sleep does not fix',
+    intro: 'You have probably been told to get more sleep, exercise more, reduce stress, or take B12. Tonight we follow the biochemistry behind the kind of tired that does not go away.',
+    steps: [
+      {
+        num: 'The recycling chain — step 1',
+        title: 'A backed-up liver affects every system that depends on blood quality',
+        body: 'The liver filters all blood coming from the digestive tract before it enters general circulation. When the liver is congested, <strong>incompletely processed blood — carrying ammonia, bilirubin, and metabolic waste — circulates systemically</strong>. Every cell in your body receives this blood. Every cell responds to its quality.'
+      },
+      {
+        num: 'The recycling chain — step 2',
+        title: 'Ammonia in the blood directly suppresses brain function',
+        body: 'Ammonia is neurotoxic. When ammonia levels rise — from high protein load that the liver cannot fully convert to urea — it crosses the blood-brain barrier. It <strong>disrupts neurotransmitter production, impairs mitochondrial function in brain cells, and causes the cognitive slowdown</strong> experienced as brain fog. This is not a mental health condition. It is a chemistry condition.'
+      },
+      {
+        num: 'The recycling chain — step 3',
+        title: 'The liver also controls T4 to T3 conversion — your metabolism switch',
+        body: 'Up to 80% of your active thyroid hormone (T3) is converted from inactive T4 <strong>inside the liver</strong>. When the liver is congested, this conversion slows. T3 drops. Your metabolism drops with it. Cells cannot produce energy efficiently. You are tired at a cellular level — not just tired from your day.'
+      },
+      {
+        num: 'The answer',
+        title: 'The fatigue is real — the source is the internal environment',
+        body: 'Sleep cannot fix chemistry. Rest cannot restore a liver that is still processing the same load every day. The fatigue is the body <strong>conserving energy because the waste burden is consuming resources that should be available for repair and function</strong>.'
+      }
+    ],
+    truth: 'The fatigue that sleep does not fix is your cells running on dirty fuel. The brain fog is ammonia chemistry. The exhaustion is the internal environment speaking.',
+    reflection: 'If your energy is connected to your liver\'s workload and your blood quality — what is one thing you ate this week that was costing more energy to process than it gave back?'
+  },
+
+  swelling: {
+    title: 'Swollen ankles or feet',
+    eyebrow: 'You selected — swelling that appears by end of day',
+    intro: 'You may have been told to elevate your legs, wear compression socks, or reduce salt. Tonight we follow where the fluid is actually coming from and why it is pooling there.',
+    steps: [
+      {
+        num: 'The kidney chain — step 1',
+        title: 'The kidneys regulate fluid balance in the body',
+        body: 'Your kidneys filter blood plasma and decide what stays and what is excreted. They control sodium levels, fluid volume, and the balance of electrolytes. When the kidneys are working well, <strong>excess fluid is excreted as urine</strong>. When they are under strain, fluid retention begins.'
+      },
+      {
+        num: 'The kidney chain — step 2',
+        title: 'High urea load taxes the nephrons — the filtering units',
+        body: 'Each kidney has over one million <strong>nephrons</strong> — microscopic filtering units. When protein load is chronically high, urea levels in the blood rise. The nephrons work harder to filter it out. Over time, chronic overload begins to reduce filtration efficiency. The kidneys retain more fluid as filtration slows.'
+      },
+      {
+        num: 'The kidney chain — step 3',
+        title: 'The liver also produces albumin — the protein that holds fluid in vessels',
+        body: 'The liver produces <strong>albumin</strong> — a protein that accounts for about 60% of total blood protein. Albumin maintains osmotic pressure, which keeps fluid inside blood vessels rather than leaking into surrounding tissues. When the liver is congested and albumin production drops, <strong>fluid leaks out of the vessels and pools in the lowest points of the body</strong> — the ankles and feet.'
+      },
+      {
+        num: 'The answer',
+        title: 'The swelling is fluid that your body cannot hold or drain properly',
+        body: 'The puffiness in your ankles and feet is not just salt. It is the downstream result of two systems — the liver and the kidneys — <strong>both under strain simultaneously</strong>. The liver is not producing enough albumin to hold fluid in vessels. The kidneys are not filtering excess fluid out efficiently. Gravity does the rest.'
+      }
+    ],
+    truth: 'Swollen ankles are the liver and kidneys telling you they are both working past capacity. The fluid is pooling because both systems that manage it are under strain.',
+    reflection: 'Your body is holding fluid it cannot clear. What is your daily protein and water intake? How much of what you drink is actually helping your kidneys filter — and how much is adding to their workload?'
+  },
+
+  stool: {
+    title: 'Pale or clay-colored stool',
+    eyebrow: 'You selected — stool that has lost its brown color',
+    intro: 'Most people never think about this. If they notice it, they hope it goes away. Tonight we trace exactly what that color change is telling you — because it is one of the most direct readouts of your liver your body produces.',
+    steps: [
+      {
+        num: 'The recycling chain — step 1',
+        title: 'Stool gets its brown color from bile — specifically from bilirubin',
+        body: 'When the liver converts heme from broken-down red blood cells into <strong>bilirubin</strong>, it packages that bilirubin into bile and sends it into the small intestine. Bacteria in the large intestine convert bilirubin into <strong>stercobilin</strong> — the pigment that gives stool its characteristic brown color. This happens every single day.'
+      },
+      {
+        num: 'The recycling chain — step 2',
+        title: 'If bile is not flowing, no pigment reaches the stool',
+        body: 'Pale or clay-colored stool means that <strong>bile is not reaching the intestine in adequate amounts</strong>. The brown pigment is missing because the bilirubin that should produce it never arrived. This can happen when bile flow is obstructed — from a congested liver, thickened bile, gallstones, or a bile duct obstruction.'
+      },
+      {
+        num: 'The recycling chain — step 3',
+        title: 'Without bile in the intestine, fat digestion and pH balance fail',
+        body: 'Bile is not just a pigment carrier. It is a <strong>fat emulsifier and an alkalizing agent</strong>. Without bile in the small intestine, dietary fats cannot be broken down properly. The pH of the small intestine becomes more acidic. Nutrient absorption drops. The stool may appear pale, greasy, or float — all signs that fat is passing through undigested.'
+      },
+      {
+        num: 'The answer',
+        title: 'Pale stool is the liver\'s daily report card — and today it is failing',
+        body: 'The color of your stool is a <strong>direct readout of bile flow</strong>, and bile flow is a direct readout of liver function. Pale stool is the body telling you that the recycling chain is backed up enough that bile is not moving freely. This is not something to wait on.'
+      }
+    ],
+    truth: 'Stool color is the liver\'s daily report card. Brown means the recycling chain is running. Pale means the bile is not getting through.',
+    reflection: 'Your body produces a report card every day and most people flush it without reading it. Starting tomorrow — what would you look for, and what would it tell you about your liver?'
+  }
+
+};
+
+var currentJourney = null;
+var currentStepIndex = 0;
+var stepsRevealed = 0;
+
+function startJourney(key) {
+  currentJourney = journeys[key];
+  currentStepIndex = 0;
+  stepsRevealed = 0;
+
+  var container = document.getElementById('journey-container');
+  container.innerHTML = '';
+
+  var screen = document.createElement('div');
+  screen.className = 'screen active';
+  screen.id = 'screen-journey';
+
+  var dotsHtml = '';
+  for (var i = 0; i < currentJourney.steps.length + 2; i++) {
+    dotsHtml += '<div class="dot' + (i === 0 ? ' active' : '') + '" id="dot-' + i + '"></div>';
+  }
+
+  screen.innerHTML =
+    '<div class="progress-dots">' + dotsHtml + '</div>' +
+    '<div class="journey-header">' +
+      '<div class="journey-eyebrow">' + currentJourney.eyebrow + '</div>' +
+      '<div class="journey-title">' + currentJourney.title + '</div>' +
+      '<div class="journey-intro">' + currentJourney.intro + '</div>' +
+    '</div>' +
+    '<div id="steps-container"></div>' +
+    '<div id="truth-container"></div>' +
+    '<div id="reflection-container"></div>' +
+    '<div class="nav-row" id="nav-row">' +
+      '<button class="btn-back" onclick="goBack()">← Choose another</button>' +
+      '<button class="btn-explore" id="exploreBtn" onclick="revealNext()">Show me what\'s happening →</button>' +
+    '</div>';
+
+  document.getElementById('screen-0').classList.remove('active');
+  container.appendChild(screen);
+
+  setTimeout(function() {
+    document.getElementById('nav-row').classList.add('revealed');
+  }, 200);
+}
+
+function revealNext() {
+  var steps = currentJourney.steps;
+
+  if (currentStepIndex < steps.length) {
+    var step = steps[currentStepIndex];
+    var container = document.getElementById('steps-container');
+
+    var card = document.createElement('div');
+    card.className = 'step-card';
+    card.innerHTML =
+      '<div class="step-number">' + step.num + '</div>' +
+      '<div class="step-title">' + step.title + '</div>' +
+      '<div class="step-body">' + step.body + '</div>';
+
+    container.appendChild(card);
+
+    setTimeout(function() { card.classList.add('revealed'); }, 50);
+
+    updateDot(currentStepIndex + 1);
+    currentStepIndex++;
+    stepsRevealed++;
+
+    if (currentStepIndex < steps.length) {
+      document.getElementById('exploreBtn').textContent = 'Keep going →';
+    } else {
+      document.getElementById('exploreBtn').textContent = 'Show me the truth →';
+    }
+
+  } else if (stepsRevealed === steps.length) {
+    // Reveal truth
+    var truthContainer = document.getElementById('truth-container');
+    var truthCard = document.createElement('div');
+    truthCard.className = 'truth-card';
+    truthCard.innerHTML =
+      '<div class="truth-label">⚡ The terrain truth</div>' +
+      '<div class="truth-text">' + currentJourney.truth + '</div>';
+    truthContainer.appendChild(truthCard);
+    setTimeout(function() { truthCard.classList.add('revealed'); }, 50);
+
+    updateDot(steps.length + 1);
+    stepsRevealed++;
+    document.getElementById('exploreBtn').textContent = 'Now reflect →';
+
+  } else if (stepsRevealed === steps.length + 1) {
+    // Reveal reflection
+    var refContainer = document.getElementById('reflection-container');
+    var refCard = document.createElement('div');
+    refCard.className = 'reflection-card';
+    refCard.innerHTML =
+      '<div class="reflection-label">🌿 Carry-home question</div>' +
+      '<div class="reflection-q">' + currentJourney.reflection + '</div>' +
+      '<textarea class="reflection-input" placeholder="Write your answer here — you will not be graded, just honest..."></textarea>';
+    refContainer.appendChild(refCard);
+    setTimeout(function() { refCard.classList.add('revealed'); }, 50);
+
+    stepsRevealed++;
+    document.getElementById('exploreBtn').textContent = 'Choose another symptom';
+    document.getElementById('exploreBtn').onclick = goBack;
+  }
+
+  // Scroll to bottom of new content
+  setTimeout(function() {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  }, 150);
+}
+
+function updateDot(index) {
+  for (var i = 0; i < 10; i++) {
+    var dot = document.getElementById('dot-' + i);
+    if (!dot) break;
+    if (i < index) dot.className = 'dot done';
+    else if (i === index) dot.className = 'dot active';
+    else dot.className = 'dot';
+  }
+}
+
+function goBack() {
+  document.getElementById('journey-container').innerHTML = '';
+  document.getElementById('screen-0').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
