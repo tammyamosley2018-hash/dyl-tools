@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DYL Method — Germ Theory vs. Terrain Model</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --soil: #2C1A0E;
+    --amber: #C8793A;
+    --gold: #E8A84A;
+    --moss: #3D5A3E;
+    --cream: #F9F3EA;
+    --clay: #D4A574;
+    --light: #FDF3E8;
+    --moss-bg: #EAF2EA;
+    --red: #8B1A1A;
+    --red-bg: #FDEAEA;
+    --blue: #2A4A6B;
+    --blue-bg: #E8EFF5;
+    --surface: #FFFFFF;
+    --border: rgba(44,26,14,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--soil);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  .header {
+    background: var(--soil);
+    border-bottom: 3px solid var(--amber);
+    padding: 28px 24px 24px;
+    text-align: center;
+  }
+  .eyebrow {
+    font-size: 10px; font-weight: 600; letter-spacing: 3px;
+    color: var(--amber); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 5vw, 32px);
+    color: var(--cream); line-height: 1.2; margin-bottom: 8px;
+  }
+  .header p { font-size: 13px; color: var(--clay); max-width: 540px; margin: 0 auto; line-height: 1.6; }
+
+  .container { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+
+  .intro-banner {
+    background: var(--light);
+    border-left: 4px solid var(--amber);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 24px 0;
+    font-size: 13px; color: var(--soil); line-height: 1.6;
+  }
+  .intro-banner strong { color: var(--amber); }
+
+  /* PROBLEM SELECTOR */
+  .problem-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 2px;
+    color: var(--clay); text-transform: uppercase;
+    margin-bottom: 14px; text-align: center;
+  }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 700px) { .problem-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 460px) { .problem-grid { grid-template-columns: 1fr; } }
+
+  .problem-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: center;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 500;
+    color: var(--soil);
+    transition: all 0.2s;
+  }
+  .problem-btn:hover { border-color: var(--amber); background: var(--light); }
+  .problem-btn.active {
+    background: var(--soil); color: var(--gold);
+    border-color: var(--soil);
+  }
+
+  /* COMPARISON VIEW */
+  .compare-wrap { display: none; }
+  .compare-wrap.visible { display: block; }
+
+  .center-problem {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .center-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    color: var(--clay); text-transform: uppercase; margin-bottom: 6px;
+  }
+  .center-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; color: var(--soil);
+  }
+
+  .compare-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 700px) { .compare-cols { grid-template-columns: 1fr; } }
+
+  .col-card {
+    border-radius: 14px;
+    padding: 22px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .col-card.revealed { opacity: 1; transform: translateY(0); }
+
+  .col-card.germ {
+    background: var(--red-bg);
+    border: 1px solid rgba(139,26,26,0.25);
+  }
+  .col-card.terrain {
+    background: var(--moss-bg);
+    border: 1px solid rgba(61,90,62,0.3);
+  }
+
+  .col-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .col-icon { font-size: 20px; }
+  .col-title {
+    font-size: 11px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .col-card.germ .col-title { color: var(--red); }
+  .col-card.terrain .col-title { color: var(--moss); }
+
+  .col-sub {
+    font-size: 12px; color: var(--clay); margin-bottom: 16px; line-height: 1.5;
+    font-style: italic;
+  }
+
+  .col-list { list-style: none; }
+  .col-list li {
+    font-size: 14px; color: var(--soil); line-height: 1.6;
+    padding: 8px 0 8px 22px;
+    position: relative;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+  .col-list li:last-child { border-bottom: none; }
+  .col-card.germ .col-list li::before {
+    content: '✕'; position: absolute; left: 0; top: 8px;
+    color: var(--red); font-size: 12px; font-weight: 700;
+  }
+  .col-card.terrain .col-list li::before {
+    content: '✓'; position: absolute; left: 0; top: 8px;
+    color: var(--moss); font-size: 12px; font-weight: 700;
+  }
+
+  /* VS divider for mobile */
+  .vs-divider {
+    display: none;
+    text-align: center;
+    margin: 4px 0;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--clay);
+    font-size: 14px;
+  }
+  @media (max-width: 700px) { .vs-divider { display: block; } }
+
+  /* SHOCKING TRUTH */
+  .truth-bar {
+    background: var(--soil);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-top: 20px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease 0.15s, transform 0.4s ease 0.15s;
+  }
+  .truth-bar.revealed { opacity: 1; transform: translateY(0); }
+  .truth-bar-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    color: var(--amber); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .truth-bar p {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; color: var(--cream);
+    line-height: 1.5; font-style: italic;
+  }
+
+  .back-btn {
+    display: block; margin: 24px auto 0;
+    padding: 10px 22px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--clay);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .back-btn:hover { border-color: var(--amber); color: var(--amber); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">DYL Method — Liver Class 3 • Module 8</div>
+  <h1>Germ Theory vs. Terrain Model</h1>
+  <p>Same problem. Two completely different conversations about what to do about it. Pick a liver issue and see both approaches side by side.</p>
+</div>
+
+<div class="container">
+
+  <div class="intro-banner">
+    <strong>Same body. Same problem. Two different questions.</strong> Germ theory asks "what do we suppress?" The terrain model asks "what is congesting the cells, and how do we help the body move it out?"
+  </div>
+
+  <!-- PROBLEM SELECTOR -->
+  <div id="selector-screen">
+    <p class="problem-label">Choose a liver problem to compare</p>
+    <div class="problem-grid" id="problemGrid"></div>
+  </div>
+
+  <!-- COMPARISON VIEW -->
+  <div class="compare-wrap" id="compareWrap"></div>
+
+</div>
+
+<script>
+var problems = {
+  jaundice: {
+    title: 'Jaundice (Yellow Eyes / Skin)',
+    germ: [
+      'Diagnose the underlying disease (hepatitis, gallstones, etc.) via bloodwork and imaging',
+      'Treat the diagnosed disease directly — antivirals, surgery to remove gallstones, or steroids for inflammation',
+      'Monitor bilirubin levels over time with repeat labs',
+      'In severe cases, consider liver transplant evaluation'
+    ],
+    terrain: [
+      'Ask what is congesting the liver — high protein load, alcohol, pharmaceutical drugs, dehydration',
+      'Remove the burden: shift to fruit-forward, low-protein, low-fat eating to reduce processing demand',
+      'Support bile flow with bitter herbs like dandelion root to help bilirubin move out',
+      'Open the lymphatic system so the liver has somewhere to release its backlog instead of recirculating it'
+    ],
+    truth: 'Both approaches see the same yellow eyes. One treats the backup. The other asks why the traffic jam exists in the first place.'
+  },
+  estrogen: {
+    title: 'Estrogen Dominance (Fibroids, PCOS, PMS)',
+    germ: [
+      'Prescribe hormonal birth control or synthetic progesterone to override the imbalance',
+      'Surgically remove fibroids or cysts when they become symptomatic',
+      'Treat PMS symptoms individually — pain medication, mood medication',
+      'Monitor hormone levels via repeat panels without addressing why they are imbalanced'
+    ],
+    terrain: [
+      'Ask why the liver is not metabolizing and excreting estrogen efficiently — congestion is the root',
+      'Reduce the liver burden so it can do its hormone-clearing job again — less processed fat, less protein',
+      'Support the lymphatic system since estrogen excess often correlates with sluggish lymph drainage',
+      'Address adrenal weakness, since low progesterone (needing DHEA from the adrenals) is often the other half of the imbalance'
+    ],
+    truth: 'A backed-up liver cannot clear estrogen. Suppressing the hormone with another hormone does not address why it built up.'
+  },
+  fattyLiver: {
+    title: 'Fatty Liver',
+    germ: [
+      'Diagnose via ultrasound or biopsy and assign a disease stage',
+      'Recommend general weight loss and "healthier eating" without specifying mechanism',
+      'Monitor liver enzymes (ALT, AST) over time',
+      'In advanced cases, treat resulting cirrhosis or consider transplant'
+    ],
+    terrain: [
+      'Recognize fat accumulation as the liver storing what it cannot process fast enough — a sign of overload, not just "too much fat eaten"',
+      'Remove the dead, processed, and high-fat foods that are exceeding the liver\'s processing capacity',
+      'Shift toward raw fruits and vegetables, which carry far more usable energy with far less processing burden',
+      'Support bile flow so existing fat stores can actually be mobilized and cleared, not just stopped from growing'
+    ],
+    truth: 'Fatty liver is not random fat storage. It is the liver\'s warehouse filling up because the loading dock cannot keep pace with deliveries.'
+  },
+  fatigue: {
+    title: 'Chronic Fatigue & Brain Fog',
+    germ: [
+      'Run bloodwork for thyroid, vitamin deficiencies, and anemia — treat whatever is flagged',
+      'Prescribe stimulants or recommend more sleep and exercise',
+      'Treat depression or anxiety as a separate, unrelated condition if mood is also low',
+      'If labs come back "normal," tell the patient their fatigue is unexplained or stress-related'
+    ],
+    terrain: [
+      'Recognize that incompletely filtered blood — carrying ammonia and metabolic waste from a congested liver — circulates to every cell',
+      'Address the liver\'s T4-to-T3 conversion role, since up to 80% of active thyroid hormone is converted there',
+      'Reduce the protein and processing load creating the ammonia in the first place',
+      'Treat fatigue as a chemistry problem with an identifiable terrain cause, not an unexplained mystery'
+    ],
+    truth: '"Your labs are normal" does not mean nothing is wrong. It means the test used was not built to see liver congestion as the cause.'
+  },
+  detox: {
+    title: 'Detox Symptoms (Headache, Skin Breakout, Irritability)',
+    germ: [
+      'Treat each symptom in isolation — pain reliever for headache, topical cream for skin, possibly antidepressant for mood',
+      'View these symptoms as separate, unrelated complaints requiring separate specialists',
+      'Discourage any dietary change that produces noticeable symptoms, labeling them "side effects" to avoid',
+      'Suppress the symptom as quickly as possible regardless of what triggered it'
+    ],
+    terrain: [
+      'Recognize these as signs the liver and lymphatic system are actively releasing stored waste — a healing crisis, not a setback',
+      'Support elimination channels (skin, kidneys, colon) so the released waste can exit efficiently',
+      'Increase hydration and rest during this phase rather than suppressing the process',
+      'Understand mood changes during detox as a temporary chemical shift, not a permanent condition'
+    ],
+    truth: 'The same headache during detox is medicine treating an enemy and terrain medicine recognizing a friend doing necessary work.'
+  },
+  hormoneImbalance: {
+    title: 'General Hormone Imbalance',
+    germ: [
+      'Run a hormone panel and identify which hormones are "out of range"',
+      'Prescribe synthetic or bioidentical hormone replacement to correct the number',
+      'Reassess the panel periodically and adjust the dose',
+      'Treat each hormone (thyroid, cortisol, estrogen, testosterone) as an independent system'
+    ],
+    terrain: [
+      'Recognize the liver as the hub that converts, metabolizes, and clears the majority of circulating hormones',
+      'Ask what is congesting that hub — diet, drugs, dehydration, chronic acid load',
+      'Decongest the liver so its hormone-processing capacity returns to normal',
+      'Understand hormones as downstream signals of liver function, not isolated variables to medicate individually'
+    ],
+    truth: 'You can replace a hormone. You cannot replace the organ that is supposed to be managing it for you.'
+  }
+};
+
+function buildSelector() {
+  var grid = document.getElementById('problemGrid');
+  Object.keys(problems).forEach(function(key) {
+    var btn = document.createElement('div');
+    btn.className = 'problem-btn';
+    btn.textContent = problems[key].title;
+    btn.onclick = function() { selectProblem(key, btn); };
+    grid.appendChild(btn);
+  });
+}
+
+function selectProblem(key, btn) {
+  document.querySelectorAll('.problem-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+
+  var p = problems[key];
+  var wrap = document.getElementById('compareWrap');
+  wrap.innerHTML =
+    '<div class="center-problem">' +
+      '<div class="center-label">Comparing approaches for</div>' +
+      '<div class="center-title">' + p.title + '</div>' +
+    '</div>' +
+    '<div class="compare-cols">' +
+      '<div class="col-card germ" id="germCard">' +
+        '<div class="col-header"><span class="col-icon">⚕️</span><span class="col-title">Germ Theory / Allopathic</span></div>' +
+        '<div class="col-sub">Treats the disease that has already formed</div>' +
+        '<ul class="col-list">' + p.germ.map(function(item) { return '<li>' + item + '</li>'; }).join('') + '</ul>' +
+      '</div>' +
+      '<div class="vs-divider">vs.</div>' +
+      '<div class="col-card terrain" id="terrainCard">' +
+        '<div class="col-header"><span class="col-icon">🌿</span><span class="col-title">Terrain Model / DYL Method</span></div>' +
+        '<div class="col-sub">Supports the body so it can decongest and heal itself</div>' +
+        '<ul class="col-list">' + p.terrain.map(function(item) { return '<li>' + item + '</li>'; }).join('') + '</ul>' +
+      '</div>' +
+    '</div>' +
+    '<div class="truth-bar" id="truthBar">' +
+      '<div class="truth-bar-label">⚡ The terrain truth</div>' +
+      '<p>' + p.truth + '</p>' +
+    '</div>' +
+    '<button class="back-btn" onclick="resetView()">← Compare another problem</button>';
+
+  wrap.classList.add('visible');
+
+  setTimeout(function() { document.getElementById('germCard').classList.add('revealed'); }, 50);
+  setTimeout(function() { document.getElementById('terrainCard').classList.add('revealed'); }, 150);
+  setTimeout(function() { document.getElementById('truthBar').classList.add('revealed'); }, 350);
+
+  setTimeout(function() {
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function resetView() {
+  document.getElementById('compareWrap').classList.remove('visible');
+  document.querySelectorAll('.problem-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('selector-screen').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+buildSelector();
+</script>
+</body>
+</html>
