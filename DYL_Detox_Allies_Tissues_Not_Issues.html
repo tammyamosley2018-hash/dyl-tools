@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DYL Method — Detox Allies: Tissues, Not Issues</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --soil: #2C1A0E;
+    --amber: #C8793A;
+    --gold: #E8A84A;
+    --moss: #3D5A3E;
+    --cream: #F9F3EA;
+    --clay: #D4A574;
+    --light: #FDF3E8;
+    --moss-bg: #EAF2EA;
+    --red: #8B1A1A;
+    --red-bg: #FDEAEA;
+    --blue: #2A4A6B;
+    --blue-bg: #E8EFF5;
+    --surface: #FFFFFF;
+    --border: rgba(44,26,14,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--soil);
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  .header {
+    background: linear-gradient(160deg, #1A0C05 0%, #2C1A0E 100%);
+    border-bottom: 3px solid var(--amber);
+    padding: 32px 24px 28px;
+    text-align: center;
+  }
+  .eyebrow {
+    font-size: 10px; font-weight: 600; letter-spacing: 3px;
+    color: var(--amber); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 5vw, 34px);
+    color: var(--cream); line-height: 1.2; margin-bottom: 10px;
+  }
+  .header p { font-size: 14px; color: var(--clay); max-width: 540px; margin: 0 auto; line-height: 1.7; }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
+
+  .truth-banner {
+    background: rgba(139,26,26,0.15);
+    border-left: 4px solid var(--red);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 24px 0;
+    font-size: 13px; color: var(--cream); line-height: 1.7;
+  }
+  .truth-banner strong { color: var(--gold); }
+
+  .organ-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 2px;
+    color: var(--amber); text-transform: uppercase;
+    margin-bottom: 16px; text-align: center;
+  }
+
+  .organ-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 640px) { .organ-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 420px) { .organ-grid { grid-template-columns: 1fr; } }
+
+  .organ-btn {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(200,121,58,0.25);
+    border-radius: 12px;
+    padding: 16px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .organ-btn:hover { border-color: var(--amber); background: rgba(200,121,58,0.1); }
+  .organ-btn.active {
+    background: var(--amber); border-color: var(--amber);
+  }
+  .organ-btn.active .organ-name { color: var(--soil); }
+
+  .organ-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px; color: var(--cream); line-height: 1.3;
+  }
+
+  .result-wrap { display: none; }
+  .result-wrap.visible { display: block; }
+
+  .result-header { text-align: center; margin-bottom: 8px; }
+  .result-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px; color: var(--cream); margin-bottom: 8px;
+  }
+  .result-sub {
+    font-size: 13px; color: var(--clay); max-width: 520px; margin: 0 auto 20px; line-height: 1.6;
+  }
+
+  .herb-section-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    color: var(--amber); text-transform: uppercase;
+    margin: 22px 0 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .herb-section-label::after { content: ''; flex: 1; height: 1px; background: rgba(200,121,58,0.25); }
+
+  .herb-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  @media (max-width: 540px) { .herb-grid { grid-template-columns: 1fr; } }
+
+  .herb-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(200,121,58,0.2);
+    border-radius: 12px;
+    padding: 16px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .herb-card.revealed { opacity: 1; transform: translateY(0); }
+
+  .herb-name { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--gold); margin-bottom: 2px; }
+  .herb-latin { font-size: 10px; color: var(--clay); font-style: italic; margin-bottom: 8px; }
+  .herb-function { font-size: 12px; color: var(--cream); line-height: 1.55; }
+
+  .herb-tag {
+    display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 99px; margin-bottom: 8px;
+  }
+  .herb-tag.detox { background: rgba(200,121,58,0.2); color: var(--amber); }
+  .herb-tag.strength { background: rgba(61,90,62,0.3); color: #6FA876; }
+  .herb-tag.note { background: rgba(42,74,107,0.3); color: #7CA3CC; }
+
+  .herb-simple-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .herb-pill {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(200,121,58,0.2);
+    border-radius: 99px; padding: 6px 14px; font-size: 12px; color: var(--cream);
+  }
+
+  .principle-bar {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(200,121,58,0.3);
+    border-radius: 12px; padding: 18px 22px; text-align: center; margin: 22px 0 16px;
+  }
+  .principle-bar p { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--cream); font-style: italic; line-height: 1.5; }
+  .principle-bar p strong { color: var(--gold); font-style: normal; }
+
+  .back-btn {
+    display: block; margin: 8px auto 0; padding: 10px 22px;
+    background: transparent; border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px; color: var(--clay); font-family: 'Inter', sans-serif;
+    font-size: 13px; cursor: pointer; transition: all 0.2s;
+  }
+  .back-btn:hover { border-color: var(--amber); color: var(--amber); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">DYL Method — Liver Class 3 • Module 9</div>
+  <h1>Detox Allies</h1>
+  <p>Tissues, not issues. Choose the organ or gland — not the symptom — and see the full herb list for that tissue.</p>
+</div>
+
+<div class="container">
+
+  <div class="truth-banner">
+    <strong>This is the principle:</strong> herbalism in the terrain model does not work by matching a symptom to a remedy. It works by identifying which <strong>tissue</strong> needs support, and choosing the herbs built for that tissue. The symptom is just where the weakness is showing up — not where the work happens.
+  </div>
+
+  <div id="selector-screen">
+    <p class="organ-label">Choose the tissue, organ, or gland</p>
+    <div class="organ-grid" id="organGrid"></div>
+  </div>
+
+  <div class="result-wrap" id="resultWrap"></div>
+
+</div>
+
+<script>
+var organs = {
+
+  liver: {
+    name: 'Liver and Gallbladder',
+    sub: 'The chemical factory and bile producer — the organ this entire series has centered on.',
+    detox: [
+      { name: 'Cascara Sagrada', latin: 'Rhamnus purshiana', fn: 'Increases liver, pancreas, stomach, and intestinal secretions. Promotes bile secretion and helps clean the liver in small doses.' },
+      { name: 'Dandelion Root', latin: 'Taraxacum spp.', fn: 'A liver and gallbladder tonic. Promotes bile formation. Effective in jaundice and liver congestion.' },
+      { name: 'Dock Family', latin: 'Yellow Dock, Burdock, Oregon Grape Root', fn: 'Blood and liver cleansers, support detoxification of liver tissue.' },
+      { name: 'Bitters', latin: 'Various bitter herbs', fn: 'Stimulate digestive secretions and bile flow.' },
+      { name: 'Ginger', latin: 'Zingiber officinale', fn: 'Supports digestion and circulation, aids liver function through improved digestive flow.' },
+      { name: 'Mint Family', latin: 'Mentha spp.', fn: 'Supports digestion and bile movement.' },
+      { name: 'Chickweed', latin: 'Stellaria media', fn: 'A gentle detoxifier supporting liver and digestive tissue.' },
+      { name: 'Marshmallow', latin: 'Althaea officinalis', fn: 'Soothes and supports digestive and liver-adjacent tissue.' }
+    ],
+    strength: [
+      { name: 'Milk Thistle', latin: 'Silybum marianum', fn: 'Regenerates liver cells. A foundational strengthener for ongoing liver support and repair.' },
+      { name: 'Dandelion Root', latin: 'Taraxacum spp.', fn: 'Doubles as both detoxifier and strengthener — one of the top liver herbs overall.' },
+      { name: 'Gentian', latin: 'Gentiana lutea', fn: 'A bitter tonic supporting digestive and liver strength.' }
+    ],
+    formulas: ['Liver / Gallbladder Formula', 'Lymphatic System Formula', 'Stomach and Bowel Formula'],
+    other: 'A Liver/Gallbladder Flush is also recommended as part of a full protocol.',
+    principle: 'Dandelion does not treat jaundice. Dandelion <strong>supports the liver tissue</strong> — and jaundice resolves as a result.'
+  },
+
+  kidneys: {
+    name: 'Kidneys and Bladder',
+    sub: 'The filtration system — the urinary structures, including kidneys, bladder, ureter, and urethra.',
+    detox: [
+      { name: 'Corn Silk', latin: 'Zea mays', fn: 'A powerful cleanser of bladder and kidney tissue. Helps clear toxins and mucus from the urinary tract.' },
+      { name: 'Juniper Berries', latin: 'Juniperus communis', fn: 'Considered one of the great kidney herbs. Strong action on the kidneys, natural diuretic, useful for UTIs.' },
+      { name: 'Saw Palmetto Berries', latin: 'Serenoa repens', fn: 'Helps increase urine flow and kidney function, useful in urinary tract infections.' },
+      { name: 'Pipsissewa', latin: 'Chimaphila umbellata', fn: 'A traditional urinary tract cleanser and tonic.' },
+      { name: 'Uva Ursi', latin: 'Arctostaphylos uva-ursi', fn: 'Classic herb for urinary tract cleansing and bladder support.' },
+      { name: 'Couch Grass Root', latin: 'Elymus repens', fn: 'Supports urinary tract cleansing and soothing.' },
+      { name: 'Parsley', latin: 'Petroselinum crispum', fn: 'A natural diuretic supporting kidney filtration.' },
+      { name: 'Dandelion Leaf', latin: 'Taraxacum spp.', fn: 'A kidney and bladder tonic and cleanser.' }
+    ],
+    strength: [
+      { name: 'Juniper Berries', latin: 'Juniperus communis', fn: 'Doubles as detoxifier and strengthener for ongoing kidney support.' },
+      { name: 'Saw Palmetto Berries', latin: 'Serenoa repens', fn: 'Supports long-term urinary tract strength.' },
+      { name: 'Pipsissewa', latin: 'Chimaphila umbellata', fn: 'Long-term urinary tract tonic.' },
+      { name: 'Uva Ursi', latin: 'Arctostaphylos uva-ursi', fn: 'Strengthens bladder and kidney tissue over time.' },
+      { name: 'Lespedeza', latin: 'Lespedeza capitata', fn: 'Supports kidney function and filtration capacity.' },
+      { name: 'Couch Grass Root', latin: 'Elymus repens', fn: 'Long-term urinary tract strengthener.' },
+      { name: 'Parsley', latin: 'Petroselinum crispum', fn: 'Ongoing diuretic support for kidney health.' },
+      { name: 'Dandelion Leaf', latin: 'Taraxacum spp.', fn: 'Long-term kidney and bladder tonic.' }
+    ],
+    formulas: ['Kidneys and Bladder Formula', 'Lymphatic System Formula', 'Prostate Formula', 'Blood Formula'],
+    other: 'Fresh watermelon and fresh fruit juices are excellent kidney cleansers and regenerators — far better than cranberry juice, which is too acidic for already-stressed kidney tissue.',
+    principle: 'Watermelon and fresh fruit juices are far better kidney cleansers than cranberry juice, which is too acidic for already-stressed kidney tissue.'
+  },
+
+  adrenals: {
+    name: 'Adrenal Glands',
+    sub: 'The stress-response and steroid hormone producers — central to fatigue, inflammation, and emotional regulation.',
+    detox: [],
+    strength: [
+      { name: 'Astragalus Root', latin: 'Astragalus membranaceus', fn: 'A foundational herb for adrenal regeneration. Used for adrenal insufficiency, fatigue, and chronic fatigue.' },
+      { name: 'Licorice Root', latin: 'Glycyrrhiza glabra', fn: 'A definite power herb for the adrenal glands, acting as a natural anti-inflammatory steroid without suppressing the adrenal own production.' },
+      { name: 'Parsley Root', latin: 'Petroselinum crispum', fn: 'Part of the foundational adrenal tincture blend.' },
+      { name: 'Bayberry Root Bark', latin: 'Myrica cerifera', fn: 'Supports adrenal regeneration as part of a full-spectrum tincture.' },
+      { name: 'Jamaican Sarsaparilla Root', latin: 'Smilax ornata', fn: 'Traditional adrenal and hormonal support herb.' },
+      { name: 'Juniper Berries', latin: 'Juniperus communis', fn: 'Supports adrenal tincture blends alongside kidney function.' },
+      { name: 'Kelp Fronds', latin: 'Nereocystis leutkeana', fn: 'Mineral-rich support for adrenal and endocrine function.' },
+      { name: 'Alfalfa Leaf', latin: 'Medicago sativa', fn: 'Nutritive support within adrenal regeneration blends.' },
+      { name: 'Prickly Ash Bark', latin: 'Zanthoxylum clava-Herculis', fn: 'Circulatory and adrenal-supportive herb.' },
+      { name: 'Siberian Ginseng Root', latin: 'Eleutherococcus senticosus', fn: 'Supports adrenal function and neurotransmitter production. Used broadly for exhaustion and low endurance.' },
+      { name: 'Ashwagandha', latin: 'Withania somnifera', fn: 'A well-known adrenal adaptogen — supports the body stress response and helps the adrenal glands regulate cortisol output.' }
+    ],
+    formulas: ['Adrenal Glands Formula', 'Endocrine Glands Formula'],
+    other: 'Indications include adrenal insufficiency, fatigue and chronic fatigue, low or high blood pressure, estrogen dominance (ovarian cysts, sore breasts, uterine fibroids), exhaustion, and anxiety disorders.',
+    principle: 'Insomnia and anxiety are effects of adrenal gland weakness — not standalone sleep or anxiety problems to medicate separately.'
+  },
+
+  thyroid: {
+    name: 'Thyroid Gland',
+    sub: 'The metabolic regulator — dependent on the liver for T4-to-T3 conversion, as covered in Class 1.',
+    detox: [
+      { name: 'Bugleweed', latin: 'Lycopus virginicus', fn: 'A specific for the thyroid gland, especially when enlarged or when goiter is present. Improves thyroid and adrenal function together.' }
+    ],
+    strength: [
+      { name: 'Saw Palmetto', latin: 'Serenoa repens', fn: 'One of the great endocrine gland herbs, supporting thyroid, adrenal, pancreas, and pituitary function as a system.' },
+      { name: 'Kelp', latin: 'Various species', fn: 'A mineral-rich strengthener supporting thyroid hormone production through natural iodine content.' },
+      { name: 'Bugleweed', latin: 'Lycopus virginicus', fn: 'Doubles as both detoxifier and strengthener for thyroid tissue.' }
+    ],
+    formulas: ['Thyroid Gland Formula', 'Endocrine Glands Formula'],
+    other: 'Where inflammation and bone deterioration is present, the thyroid and adrenal glands are always underactive. Most thyroid medications do not affect T4 to T3 conversion well — this conversion happens primarily in the liver.',
+    principle: 'The thyroid often tests normal on labs while the cells still experience hypothyroid symptoms, because the T4-to-T3 conversion happens in the liver, not the thyroid itself.'
+  },
+
+  pituitary: {
+    name: 'Pituitary and Hormonal Hub',
+    sub: 'The mother gland — the master regulator that signals the rest of the endocrine system.',
+    detox: [
+      { name: 'Parsley Leaf', latin: 'Petroselinum crispum', fn: 'Supports the broader glandular system, which the pituitary regulates.' },
+      { name: 'Poke Root', latin: 'Phytolacca americana', fn: 'Supports glandular detoxification within the broader endocrine system.' }
+    ],
+    strength: [
+      { name: 'Chaste Tree Berry', latin: 'Vitex agnus-castus', fn: 'Thought to work directly on the pituitary gland, the mother of the female hormones. Can produce either an estrogenic or progestogenic effect, as the body directs its use.' },
+      { name: 'False Unicorn Root', latin: 'Chamaelirium luteum', fn: 'Used for hormone imbalance broadly, working in support of the pituitary-driven hormonal cascade.' },
+      { name: 'Saw Palmetto Berries', latin: 'Serenoa repens', fn: 'Part of the endocrine herb family supporting pituitary-linked glandular function.' },
+      { name: 'Panax Ginseng Root', latin: 'Panax ginseng', fn: 'Supports broader glandular and hormonal function — caution in presence of inflammation or cancer.' }
+    ],
+    formulas: ['Endocrine Glands Formula', 'Female Reproductive Formula', 'Male Reproductive Formula'],
+    other: '',
+    principle: 'Chaste Tree Berry does not fix hot flashes or fix irregular periods. It supports the pituitary, the hub sending the signals those symptoms are downstream of.'
+  },
+
+  lymphatic: {
+    name: 'Lymphatic System',
+    sub: 'The body sewer system — spleen, thymus, appendix, tonsils, lymph nodes, and lymph fluid. Where most congestion begins.',
+    detox: [
+      { name: 'Poke Root', latin: 'Phytolacca americana', fn: 'Supports lymphatic congestion and swollen nodes.' },
+      { name: 'Blood Root', latin: 'Sanguinaria canadensis', fn: 'A traditional lymphatic and blood cleanser.' },
+      { name: 'Fenugreek', latin: 'Trigonella foenum-graecum', fn: 'Supports mucus clearing and lymphatic movement.' },
+      { name: 'Mild Cayenne Pepper', latin: 'Capsicum annuum', fn: 'Stimulates circulation and lymphatic flow.' },
+      { name: 'Cascara Sagrada', latin: 'Rhamnus purshiana', fn: 'Supports elimination alongside lymphatic detoxification.' },
+      { name: 'White Oak Bark', latin: 'Quercus alba', fn: 'Increases lymphatic flow and helps reduce swollen lymph nodes.' },
+      { name: 'Cleavers', latin: 'Galium aparine', fn: 'A classic lymphatic mover supporting drainage and reducing congestion.' },
+      { name: 'Red Clover', latin: 'Trifolium pratense', fn: 'A classic lymphatic mover, used broadly to support drainage.' },
+      { name: 'Blue Flag', latin: 'Iris versicolor', fn: 'Traditional lymphatic and glandular detoxifier.' },
+      { name: 'Plantain', latin: 'Plantago major', fn: 'Soothes and supports lymphatic tissue detoxification.' },
+      { name: 'Red Root', latin: 'Ceanothus americanus', fn: 'Specific support for lymph node and spleen congestion.' },
+      { name: 'Yellow Dock', latin: 'Rumex crispus', fn: 'Blood and lymphatic cleanser.' }
+    ],
+    strength: [
+      { name: 'Yellow Dock', latin: 'Rumex crispus', fn: 'Doubles as detoxifier and long-term lymphatic strengthener.' },
+      { name: 'Poke Root', latin: 'Phytolacca americana', fn: 'Long-term lymphatic tissue support.' },
+      { name: 'Blue Flag', latin: 'Iris versicolor', fn: 'Ongoing glandular and lymphatic strengthening.' },
+      { name: 'White Oak Bark', latin: 'Quercus alba', fn: 'Strengthens lymphatic tissue over time.' },
+      { name: 'Reishi Mushroom', latin: 'Ganoderma lucidum', fn: 'Helps reduce swollen lymph nodes, increases fibroblasts, macrophages, and lymphocytes.' },
+      { name: 'Maitake Mushroom', latin: 'Grifola frondosa', fn: 'Immune and lymphatic strengthener.' },
+      { name: 'Shiitake Mushroom', latin: 'Lentinula edodes', fn: 'Supports immune and lymphatic tissue strength.' }
+    ],
+    formulas: ['Lymphatic System Formula', 'Kidneys and Bladder Formula', 'Liver and Gallbladder Formula', 'Blood Formula'],
+    other: 'The organs of the eliminative system are tied to the lymphatic system. Your lymph and blood send their wastes into your eliminative channels, the kidneys and colon, to be excreted.',
+    principle: 'The lymphatic system is the body sewer system, the most congested, obstructed area, and where most chronic conditions begin.'
+  },
+
+  reproductive: {
+    name: 'Female and Male Reproductive',
+    sub: 'Tissues directly affected by liver-cleared estrogen and adrenal-produced progesterone.',
+    detox: [
+      { name: 'Saw Palmetto Berries', latin: 'Serenoa repens', fn: 'Detoxifying support for both male and female reproductive tissue.' },
+      { name: 'White Pond Lily', latin: 'Nymphaea odorata', fn: 'Cleanses and strengthens reproductive tissue in both male and female.' },
+      { name: 'Poke Root', latin: 'Phytolacca americana', fn: 'Supports lymphatic and reproductive tissue detoxification.' },
+      { name: 'White Oak Bark', latin: 'Quercus alba', fn: 'Astringent cleanser supporting reproductive tissue tone.' }
+    ],
+    strength: [
+      { name: 'Chaste Tree Berry', latin: 'Vitex agnus-castus', fn: 'Works through the pituitary to balance estrogen and progesterone signaling for the female reproductive system.' },
+      { name: 'True Unicorn Root', latin: 'Aletris farinosa', fn: 'A core female reproductive strengthener, used alongside False Unicorn Root in the full female reproductive tincture.' },
+      { name: 'False Unicorn Root', latin: 'Chamaelirium luteum', fn: 'Classic herb for estrogen deficiency-related reproductive concerns, distinct from True Unicorn Root.' },
+      { name: 'Wild Yam Root', latin: 'Dioscorea spp.', fn: 'Direct raw material support for progesterone-related reproductive balance.' },
+      { name: 'Red Raspberry Leaf', latin: 'Rubus idaeus', fn: 'A traditional female reproductive tonic and uterine strengthener.' },
+      { name: 'Black Haw Bark', latin: 'Viburnum prunifolium', fn: 'Supports menstrual and uterine tissue health.' },
+      { name: 'Prickly Ash Bark', latin: 'Zanthoxylum clava-Herculis', fn: 'Circulatory support within reproductive formulas.' },
+      { name: 'Saw Palmetto', latin: 'Serenoa repens', fn: 'Called the male herb for prostate support, inhibits dihydrotestosterone production.' },
+      { name: 'Damiana Leaf', latin: 'Turnera diffusa', fn: 'Male reproductive strengthener, supports sexual function and energy.' },
+      { name: 'Kelp', latin: 'Various species', fn: 'Mineral support for reproductive and glandular tissue.' },
+      { name: 'Panax Ginseng Root', latin: 'Panax ginseng', fn: 'Male reproductive strengthener — caution with inflammation or cancer present.' },
+      { name: 'Siberian Ginseng Root', latin: 'Eleutherococcus senticosus', fn: 'Supports male and female reproductive endurance.' },
+      { name: 'Astragalus Root', latin: 'Astragalus membranaceus', fn: 'Reproductive and adrenal cross-support.' },
+      { name: 'Licorice Root', latin: 'Glycyrrhiza glabra', fn: 'Reproductive and adrenal cross-support.' },
+      { name: 'Black Cohosh', latin: 'Actaea racemosa', fn: 'Traditional female reproductive strengthener.' },
+      { name: 'Pumpkin Seed', latin: 'Cucurbita pepo', fn: 'Male reproductive and prostate support.' }
+    ],
+    formulas: ['Female Reproductive Formula', 'Male Reproductive Formula', 'Prostate Formula', 'Lymphatic System Formula'],
+    other: 'Females produce estrogen primarily in three places: the liver, fat cells, and ovaries. A majority of women are considered estrogen dominant. Low progesterone production occurs mainly from adrenal insufficiency — use an adrenal formula alongside reproductive support. Hot flashes and cramping can indicate thyroid weakness.',
+    principle: 'Estrogen dominance is never just a female hormone problem. It is a liver-clearance problem and an adrenal-progesterone problem showing up in reproductive tissue.'
+  },
+
+  skin: {
+    name: 'Skin (Integumentary)',
+    sub: 'The largest eliminative organ — skin, nails, hair, oil and sweat glands. Picks up the overflow when liver, bowels, and lymph are backed up.',
+    detox: [
+      { name: 'Dock Family', latin: 'Yellow Dock, Oregon Grape Root', fn: 'Number one for skin conditions of all types. A strong blood and liver cleanser removing the acid buildup showing up on the skin.' },
+      { name: 'Milk Thistle', latin: 'Silybum marianum', fn: 'Liver regeneration directly reduces the burden being pushed out through the skin.' },
+      { name: 'Poke Root', latin: 'Phytolacca americana', fn: 'Supports lymphatic detoxification feeding into skin elimination.' },
+      { name: 'Chaparral', latin: 'Larrea tridentata', fn: 'Strong blood and skin detoxifier.' },
+      { name: 'White Oak Bark', latin: 'Quercus alba', fn: 'Astringent cleanser used for skin conditions including eczema, dermatitis, and psoriasis.' }
+    ],
+    strength: [
+      { name: 'Dock Family', latin: 'Yellow Dock, Oregon Grape Root', fn: 'Doubles as detoxifier and long-term skin strengthener.' },
+      { name: 'Milk Thistle', latin: 'Silybum marianum', fn: 'Ongoing liver-skin support strengthener.' },
+      { name: 'Horsetail', latin: 'Equisetum arvense', fn: 'High in silica, supports skin, hair, and nail tissue strength.' },
+      { name: 'Comfrey Root and Leaf', latin: 'Symphytum officinale', fn: 'Tissue repair and skin strengthening.' }
+    ],
+    formulas: ['Lymphatic System Formula', 'Liver and Gallbladder Formula', 'Stomach and Bowel Formula', 'Blood Formula', 'Circulation Formula'],
+    other: 'A Liver/Gallbladder Flush and skin brushing are also recommended as part of a full skin-support protocol.',
+    principle: 'The skin is supposed to eliminate as much waste daily as the kidneys and bowels combined. When the liver is backed up, the skin absorbs the overflow.'
+  },
+
+  immune: {
+    name: 'Immune System',
+    sub: 'Lymphatic system, thymus, spleen, bone marrow, and immune cells — closely tied to liver function.',
+    detox: [
+      { name: 'Poke Root', latin: 'Phytolacca americana', fn: 'Supports immune and lymphatic detoxification.' },
+      { name: 'Blood Root', latin: 'Sanguinaria canadensis', fn: 'Traditional immune-supportive blood cleanser.' },
+      { name: 'Blue Flag', latin: 'Iris versicolor', fn: 'Glandular and immune-supportive detoxifier.' },
+      { name: 'Bugleweed', latin: 'Lycopus virginicus', fn: 'Supports thyroid-immune cross-function.' },
+      { name: 'Red Clover Flower', latin: 'Trifolium pratense', fn: 'Blood and immune system cleanser.' },
+      { name: 'Fenugreek Seed', latin: 'Trigonella foenum-graecum', fn: 'Mucus-clearing immune support.' },
+      { name: 'Plantain Leaf', latin: 'Plantago major', fn: 'Soothing immune tissue support.' },
+      { name: 'Oregon Grape Root', latin: 'Berberis aquifolium', fn: 'Blood and immune cleansing support.' }
+    ],
+    strength: [
+      { name: 'Reishi Mushroom', latin: 'Ganoderma lucidum', fn: 'A powerful immune stimulator. Stimulates T and B cell production. May help steroid production via positive effect on adrenal glands.' },
+      { name: 'Shiitake Mushroom', latin: 'Lentinula edodes', fn: 'Immune strengthening mushroom.' },
+      { name: 'Astragalus Root', latin: 'Astragalus membranaceus', fn: 'Foundational immune and adrenal strengthener.' },
+      { name: 'Kelp / Bladderwrack', latin: 'Various species', fn: 'Mineral-rich immune and glandular support.' },
+      { name: 'Panax Ginseng', latin: 'Panax ginseng', fn: 'Broad immune strengthener — caution with inflammation or cancer.' },
+      { name: 'Echinacea', latin: 'Purpurea, Angustifolia, Pallida', fn: 'Known as the immune herb. Strengthens and stimulates the immune system, enhances bone marrow and thymus function.' },
+      { name: 'Siberian Ginseng', latin: 'Eleutherococcus senticosus', fn: 'Immune and adrenal cross-support.' },
+      { name: 'Maitake Mushroom', latin: 'Grifola frondosa', fn: 'Immune strengthening mushroom.' },
+      { name: 'Schizandra Berries', latin: 'Schisandra chinensis', fn: 'Adaptogenic immune and liver support.' }
+    ],
+    formulas: ['Immune Formula #1 (general use)', 'Immune Formula #2 / Super-Immune (bone marrow + B-cell production)', 'Adrenal Glands Formula', 'Thyroid Gland Formula', 'Spleen Formula', 'Liver and Gallbladder Formula'],
+    other: '',
+    principle: 'The immune system is part of the lymphatic system, your body sewer system. Supporting immune tissue means supporting drainage, not just fighting something.'
+  },
+
+  intestinal: {
+    name: 'Intestinal and Bowel System',
+    sub: 'The colon and digestive elimination structures — tightly connected to lymphatic, urinary, and skin elimination.',
+    detox: [
+      { name: 'Cascara Sagrada', latin: 'Rhamnus purshiana', fn: 'Helps tone and strengthen the intestines, increases peristaltic action.' },
+      { name: 'Psyllium Seed', latin: 'Plantago ovata', fn: 'Fiber-based bowel cleanser and bulking agent.' },
+      { name: 'Flax Seed', latin: 'Linum usitatissimum', fn: 'Mucilaginous bowel support and gentle detoxifier.' },
+      { name: 'Dock Family', latin: 'Yellow Dock, Burdock, Oregon Grape Root', fn: 'Blood and bowel cleansing support.' },
+      { name: 'Marshmallow', latin: 'Althaea officinalis', fn: 'Soothes and supports intestinal lining.' },
+      { name: 'Slippery Elm', latin: 'Ulmus rubra', fn: 'Demulcent support for intestinal tissue healing.' },
+      { name: 'White Oak Bark', latin: 'Quercus alba', fn: 'Astringent bowel tissue cleanser.' }
+    ],
+    strength: [
+      { name: 'Cascara Sagrada', latin: 'Rhamnus purshiana', fn: 'Long-term peristaltic strengthener.' },
+      { name: 'Mullein', latin: 'Verbascum thapsus', fn: 'Soothing tissue strengthener.' },
+      { name: 'Chickweed', latin: 'Stellaria media', fn: 'Gentle bowel tissue strengthener.' },
+      { name: 'Dock Family', latin: 'Yellow Dock, Burdock, Oregon Grape Root', fn: 'Ongoing bowel and blood strengthening.' },
+      { name: 'Marshmallow', latin: 'Althaea officinalis', fn: 'Long-term intestinal lining support.' },
+      { name: 'Slippery Elm', latin: 'Ulmus rubra', fn: 'Long-term demulcent strengthener.' },
+      { name: 'Gentian', latin: 'Gentiana lutea', fn: 'Bitter tonic strengthening digestive function.' }
+    ],
+    formulas: ['Stomach and Bowel Formula', 'Liver and Gallbladder Formula', 'Lymphatic Formula', 'Kidneys and Bladder Formula', 'Parasite Formulas (microorganism and general)'],
+    other: 'A Liver/Gallbladder Flush is also recommended as part of a full intestinal support protocol.',
+    principle: 'The colon, lymphatic system, urinary system, immune system, and skin are all interconnected eliminative structures, supporting one supports all of them.'
+  },
+
+  nervous: {
+    name: 'Nervous System',
+    sub: 'Brain, spinal cord, autonomic nervous system, and sensory organs.',
+    detox: [],
+    strength: [
+      { name: 'Gotu Kola', latin: 'Centella asiatica', fn: 'Strengthens the brain and nervous system.' },
+      { name: 'Ginkgo Biloba', latin: 'Ginkgo biloba', fn: 'Supports circulation to brain and nerve tissue.' },
+      { name: 'Skullcap', latin: 'Scutellaria lateriflora', fn: 'One of the greatest herbs for the brain, spine, and nervous system. A powerful nervine, sedative, and anti-spasmodic.' },
+      { name: 'Kelp', latin: 'Various species', fn: 'Mineral support for nerve tissue.' },
+      { name: 'Saw Palmetto Berries', latin: 'Serenoa repens', fn: 'Endocrine support feeding into nervous system balance.' },
+      { name: 'Chaste Tree Berries', latin: 'Vitex agnus-castus', fn: 'Hormonal-nervous system cross-support.' },
+      { name: 'Panax Ginseng', latin: 'Panax ginseng', fn: 'Nervous system strengthener — caution with inflammation or cancer.' },
+      { name: 'Siberian Ginseng', latin: 'Eleutherococcus senticosus', fn: 'Adaptogenic nervous system support.' },
+      { name: 'Parsley Root and Leaf', latin: 'Petroselinum crispum', fn: 'Glandular-nervous system cross-support.' },
+      { name: 'Hawthorn Berries', latin: 'Crataegus spp.', fn: 'Cardiac-nervous system cross-support.' },
+      { name: 'Astragalus Root', latin: 'Astragalus membranaceus', fn: 'Adrenal-nervous system cross-support, increases low neurotransmitter production via adrenal strengthening.' },
+      { name: 'Licorice Root', latin: 'Glycyrrhiza glabra', fn: 'Adrenal-nervous system cross-support.' }
+    ],
+    antispasmodics: [
+      { name: 'Lobelia', latin: 'Lobelia inflata', fn: 'One of nature greatest antispasmodics. Useful in spasms, cramping, convulsions.' },
+      { name: 'St. John Wort', latin: 'Hypericum perforatum', fn: 'Strong regenerative effect on the nervous system, used for depression, anxiety, and irritability.' },
+      { name: 'California Poppy', latin: 'Eschscholzia californica', fn: 'Gentle nervous system relaxant and antispasmodic.' },
+      { name: 'Passion Flower', latin: 'Passiflora incarnata', fn: 'Calming antispasmodic for the nervous system.' },
+      { name: 'Skullcap', latin: 'Scutellaria lateriflora', fn: 'Doubles as strengthener and antispasmodic.' }
+    ],
+    relaxants: [
+      { name: 'Valerian', latin: 'Valeriana officinalis', fn: 'Classic nervous system relaxant and sedative.' },
+      { name: 'St. John Wort', latin: 'Hypericum perforatum', fn: 'Relaxant alongside its regenerative properties.' },
+      { name: 'Passion Flower', latin: 'Passiflora incarnata', fn: 'Gentle relaxant for nervous tension.' },
+      { name: 'California Poppy', latin: 'Eschscholzia californica', fn: 'Calming relaxant for nervous system tension.' }
+    ],
+    formulas: ['Brain and Nervous System Formula', 'Adrenal Glands Formula', 'Thyroid Gland Formula', 'Kidneys and Bladder Formula', 'Neuromuscular Spasms Formula'],
+    other: 'Many nervous system herbs work by strengthening the adrenal glands, which increases low neurotransmitter production, strengthening the nervous system indirectly.',
+    principle: 'Insomnia and anxiety are described as effects of adrenal gland weakness. Supporting the adrenals often does more for nervous system symptoms than targeting the nerves directly.'
+  },
+
+  muscular: {
+    name: 'Muscular System',
+    sub: 'Muscles, tendons, and connective tissue.',
+    detox: [
+      { name: 'Poke Root', latin: 'Phytolacca americana', fn: 'Supports lymphatic drainage feeding into muscular tissue health.' },
+      { name: 'Plantain', latin: 'Plantago major', fn: 'Soothing tissue detoxifier.' },
+      { name: 'Blood Root', latin: 'Sanguinaria canadensis', fn: 'Blood cleanser supporting muscular tissue.' },
+      { name: 'Fenugreek Seed', latin: 'Trigonella foenum-graecum', fn: 'Mucus and tissue detoxifier.' },
+      { name: 'Chaparral', latin: 'Larrea tridentata', fn: 'Strong blood and tissue detoxifier.' },
+      { name: 'White Oak Bark', latin: 'Quercus alba', fn: 'Astringent tissue cleanser.' },
+      { name: 'Blue Flag', latin: 'Iris versicolor', fn: 'Glandular and tissue detoxifier.' },
+      { name: 'Red Clover', latin: 'Trifolium pratense', fn: 'Lymphatic and tissue cleanser.' },
+      { name: 'Burdock Root', latin: 'Arctium lappa', fn: 'Strong blood and tissue cleanser, reduces swelling around joints.' },
+      { name: 'Dandelion Root', latin: 'Taraxacum spp.', fn: 'Liver-driven tissue detoxification support.' }
+    ],
+    strength: [
+      { name: 'Alfalfa', latin: 'Medicago sativa', fn: 'Mineral-rich muscular tissue strengthener.' },
+      { name: 'Kelp', latin: 'Various species', fn: 'Mineral support for muscle and connective tissue.' },
+      { name: 'Panax Ginseng', latin: 'Panax ginseng', fn: 'Muscular system strengthener — caution with inflammation or cancer.' },
+      { name: 'Comfrey Root and Leaf', latin: 'Symphytum officinale', fn: 'Tissue repair and muscular strengthener.' },
+      { name: 'Horsetail', latin: 'Equisetum arvense', fn: 'High in silica, strengthens connective tissue.' }
+    ],
+    formulas: ['Lymphatic System Formula', 'Circulation Formula', 'Lymph Nodes Formula', 'Bones Formula', 'Thyroid Gland Formula', 'Adrenal Glands Formula'],
+    other: '',
+    principle: 'Muscular tissue weakness is rarely just about the muscle. It often traces back to lymphatic congestion and mineral depletion.'
+  },
+
+  cardiovascular: {
+    name: 'Cardiovascular System',
+    sub: 'Heart, vascular system (arteries, capillaries, veins), and the blood.',
+    detox: [
+      { name: 'Butcher Broom', latin: 'Ruscus aculeatus', fn: 'A great circulatory herb, tones and strengthens vascular walls.' },
+      { name: 'Horse Chestnut', latin: 'Aesculus hippocastanum', fn: 'Strengthens and tones vascular walls, anti-inflammatory, dissolves plaqued lipids.' },
+      { name: 'White Oak Bark', latin: 'Quercus alba', fn: 'Strengthens arteries, veins, and capillaries.' },
+      { name: 'Witch Hazel', latin: 'Hamamelis virginiana', fn: 'Astringent vascular cleanser.' },
+      { name: 'Red Clover', latin: 'Trifolium pratense', fn: 'Blood and circulatory cleanser.' }
+    ],
+    strength: [
+      { name: 'Hawthorn Berries', latin: 'Crataegus spp.', fn: 'Considered a cardiac tonic for all heart-related issues. Excellent anti-inflammatory for the vascular system.' },
+      { name: 'Ginkgo Biloba', latin: 'Ginkgo biloba', fn: 'Increases circulation, especially to peripheral areas like brain, hands, and feet.' },
+      { name: 'Bilberry Leaf', latin: 'Vaccinium myrtillus', fn: 'Supports vascular tissue strength and circulation.' },
+      { name: 'Black Walnut Hull', latin: 'Juglans nigra', fn: 'Circulatory and tissue strengthener.' }
+    ],
+    formulas: ['Circulation Formula', 'Cayenne/Garlic Combo', 'Blood Formula', 'Lymphatic System Formula', 'Adrenal Glands Formula', 'Inflammation/Joints Formula', 'Endocrine Glands Formula'],
+    other: '',
+    principle: 'A living, raw food diet alkalizes the vascular system, dissolving lipid plaque and mineral deposits, increasing circulation and lowering blood pressure naturally.'
+  },
+
+  glandular: {
+    name: 'Glandular System (General)',
+    sub: 'Pituitary, pineal, thyroid, parathyroid, thymus, adrenals, pancreas, ovaries, and testes as a coordinated system.',
+    detox: [
+      { name: 'Bugleweed Leaf', latin: 'Lycopus virginicus', fn: 'Thyroid-specific glandular detoxifier.' },
+      { name: 'Dandelion Leaf', latin: 'Taraxacum spp.', fn: 'Liver-driven glandular support.' },
+      { name: 'Parsley Leaf', latin: 'Petroselinum crispum', fn: 'Broad glandular detoxifier.' },
+      { name: 'Poke Root', latin: 'Phytolacca americana', fn: 'Glandular and lymphatic detoxifier.' },
+      { name: 'Kelp', latin: 'Various species', fn: 'Mineral-rich glandular support.' },
+      { name: 'Saw Palmetto Berries', latin: 'Serenoa repens', fn: 'Endocrine gland detoxifying support.' }
+    ],
+    strength: [
+      { name: 'Licorice Root', latin: 'Glycyrrhiza glabra', fn: 'Broad glandular strengthener, especially adrenal.' },
+      { name: 'Astragalus Root', latin: 'Astragalus membranaceus', fn: 'Glandular and immune strengthener.' },
+      { name: 'Panax Ginseng Root', latin: 'Panax ginseng', fn: 'Broad glandular strengthener — caution with inflammation or cancer.' },
+      { name: 'Siberian Ginseng Root', latin: 'Eleutherococcus senticosus', fn: 'Adaptogenic glandular support.' },
+      { name: 'Kelp', latin: 'Various species', fn: 'Doubles as detoxifier and strengthener for glandular tissue.' },
+      { name: 'Saw Palmetto Berries', latin: 'Serenoa repens', fn: 'One of the great endocrine gland herbs for thyroid, adrenal, pancreas, and pituitary.' },
+      { name: 'Chaste Tree Berry', latin: 'Vitex agnus-castus', fn: 'Pituitary-level glandular strengthener.' },
+      { name: 'Hawthorn Berries', latin: 'Crataegus spp.', fn: 'Cardiac-glandular cross-support.' },
+      { name: 'Bugleweed', latin: 'Lycopus virginicus', fn: 'Thyroid glandular strengthener.' },
+      { name: 'Dandelion Leaf', latin: 'Taraxacum spp.', fn: 'Liver-glandular cross-support.' },
+      { name: 'Parsley Leaf', latin: 'Petroselinum crispum', fn: 'Broad glandular strengthener.' },
+      { name: 'False Unicorn Root', latin: 'Chamaelirium luteum', fn: 'Reproductive-glandular cross-support.' },
+      { name: 'Ashwagandha', latin: 'Withania somnifera', fn: 'Broad adaptogenic support across the adrenal-thyroid-pituitary axis.' }
+    ],
+    formulas: ['Endocrine Glands Formula', 'Adrenal Glands Formula', 'Thyroid Gland Formula', 'Pancreas Formula', 'Male Reproductive Formula', 'Liver and Gallbladder Formula', 'Circulation Formula', 'Blood Formula'],
+    other: 'A living, raw food diet promotes glandular function broadly and helps balance hormone and steroid responses, increasing nutrient utilization and creating homeostasis of body chemistry.',
+    principle: 'The glandular system works as one coordinated network. Supporting one gland, like the liver supporting hormone clearance, ripples through the entire system.'
+  }
+
+};
+
+function buildSelector() {
+  var grid = document.getElementById('organGrid');
+  Object.keys(organs).forEach(function(key) {
+    var o = organs[key];
+    var btn = document.createElement('div');
+    btn.className = 'organ-btn';
+    btn.innerHTML = '<span class="organ-name">' + o.name + '</span>';
+    btn.onclick = function() { selectOrgan(key, btn); };
+    grid.appendChild(btn);
+  });
+}
+
+function selectOrgan(key, btn) {
+  document.querySelectorAll('.organ-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+
+  var o = organs[key];
+  var wrap = document.getElementById('resultWrap');
+
+  var html = '<div class="result-header">' +
+      '<div class="result-title">' + o.name + '</div>' +
+      '<div class="result-sub">' + o.sub + '</div>' +
+    '</div>';
+
+  var cardIndex = 0;
+  var allCardIds = [];
+
+  function section(list, tagClass, tagLabel, label) {
+    if (!list || !list.length) return '';
+    var inner = '<div class="herb-section-label">' + label + '</div><div class="herb-grid">';
+    list.forEach(function(h) {
+      var id = 'card' + cardIndex;
+      allCardIds.push(id);
+      inner += '<div class="herb-card" id="' + id + '">' +
+        '<span class="herb-tag ' + tagClass + '">' + tagLabel + '</span>' +
+        '<div class="herb-name">' + h.name + '</div>' +
+        '<div class="herb-latin">' + h.latin + '</div>' +
+        '<div class="herb-function">' + h.fn + '</div>' +
+      '</div>';
+      cardIndex++;
+    });
+    inner += '</div>';
+    return inner;
+  }
+
+  html += section(o.detox, 'detox', 'Detoxifier', 'Detoxifiers');
+  html += section(o.strength, 'strength', 'Strengthener', 'Strengtheners');
+  html += section(o.antispasmodics, 'note', 'Antispasmodic', 'Antispasmodics');
+  html += section(o.relaxants, 'note', 'Relaxant', 'Relaxants');
+
+  if (o.formulas && o.formulas.length) {
+    html += '<div class="herb-section-label">Related Herbal Formulas</div><div class="herb-simple-list">';
+    o.formulas.forEach(function(f) { html += '<span class="herb-pill">' + f + '</span>'; });
+    html += '</div>';
+  }
+
+  if (o.other) {
+    html += '<div class="principle-bar" style="margin-top:8px;"><p style="font-size:13px;font-style:normal;color:var(--clay);">' + o.other + '</p></div>';
+  }
+
+  html += '<div class="principle-bar"><p>' + o.principle + '</p></div>' +
+    '<button class="back-btn" onclick="resetView()">Choose another tissue</button>';
+
+  wrap.innerHTML = html;
+  wrap.classList.add('visible');
+
+  allCardIds.forEach(function(id, i) {
+    setTimeout(function() {
+      var card = document.getElementById(id);
+      if (card) card.classList.add('revealed');
+    }, 35 * (i + 1));
+  });
+
+  setTimeout(function() {
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function resetView() {
+  document.getElementById('resultWrap').classList.remove('visible');
+  document.querySelectorAll('.organ-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('selector-screen').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+buildSelector();
+</script>
+</body>
+</html>
