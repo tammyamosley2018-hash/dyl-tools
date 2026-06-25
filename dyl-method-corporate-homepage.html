@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DYL Method for Organizations | Root-Cause Wellness for High-Performing Teams</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brown:#5C2E1A;
+    --brown-deep:#3E1F11;
+    --gold:#C9A84C;
+    --rose:#C4547A;
+    --blush:#FAF4F0;
+    --lavender:#D4A8B8;
+    --ink:#2B1B12;
+    --paper:#FFFDFB;
+    --line:rgba(92,46,26,0.14);
+    --display:'Fraunces',serif;
+    --body:'Inter',sans-serif;
+    --mono:'IBM Plex Mono',monospace;
+    --maxw:1140px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--blush);
+    color:var(--ink);
+    font-family:var(--body);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{max-width:100%;display:block;}
+  a{color:inherit;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px;}
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--rose);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:0 0 18px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:18px;height:1px;
+    background:var(--rose);
+  }
+  h1,h2,h3{
+    font-family:var(--display);
+    font-weight:500;
+    color:var(--brown-deep);
+    margin:0;
+  }
+  h1{font-size:clamp(34px,4.6vw,56px);line-height:1.08;font-weight:480;letter-spacing:-0.01em;}
+  h2{font-size:clamp(28px,3.4vw,40px);line-height:1.15;}
+  h3{font-size:20px;font-weight:600;}
+  p{margin:0;}
+  .lead{font-size:18px;color:#5b4438;max-width:46ch;}
+  .btn{
+    font-family:var(--body);
+    font-weight:600;
+    font-size:15px;
+    border:none;
+    border-radius:3px;
+    padding:14px 26px;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    text-decoration:none;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .btn-primary{background:var(--brown);color:var(--blush);}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 24px -8px rgba(62,31,17,0.55);}
+  .btn-ghost{background:transparent;color:var(--brown);border:1.5px solid var(--brown);}
+  .btn-ghost:hover{background:rgba(92,46,26,0.06);}
+  .btn-on-dark{background:var(--gold);color:var(--brown-deep);}
+  .btn-on-dark:hover{transform:translateY(-2px);box-shadow:0 10px 24px -8px rgba(0,0,0,0.4);}
+
+  /* NAV */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(250,244,240,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  nav{
+    max-width:var(--maxw);margin:0 auto;padding:18px 32px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .logo{
+    font-family:var(--display);font-size:19px;font-weight:600;color:var(--brown-deep);
+    letter-spacing:0.01em;
+  }
+  .logo span{color:var(--rose);}
+  .navlinks{display:flex;gap:30px;font-size:14.5px;font-weight:500;}
+  .navlinks a{text-decoration:none;color:var(--ink);opacity:0.75;transition:opacity .15s;}
+  .navlinks a:hover{opacity:1;}
+  .nav-cta{display:none;}
+  @media(min-width:760px){.nav-cta{display:inline-flex;}}
+  .navlinks-mobile-hide{display:none;}
+  @media(min-width:760px){.navlinks-mobile-hide{display:flex;}}
+
+  /* HERO */
+  .hero{
+    padding:84px 0 70px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-grid{
+    display:grid;grid-template-columns:1fr;gap:48px;align-items:center;
+  }
+  @media(min-width:900px){.hero-grid{grid-template-columns:1.05fr 0.95fr;}}
+  .hero-ctas{display:flex;flex-wrap:wrap;gap:14px;margin-top:32px;}
+  .hero-foot{
+    margin-top:30px;font-family:var(--mono);font-size:12px;color:#8a6f5a;letter-spacing:0.02em;
+  }
+  .signal-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:28px 24px 20px;
+    box-shadow:0 30px 60px -30px rgba(62,31,17,0.25);
+  }
+  .signal-card-label{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:#9a8170;margin-bottom:14px;
+  }
+
+  /* STAT BAND */
+  .stats{
+    background:var(--brown-deep);
+    color:var(--blush);
+    padding:46px 0;
+  }
+  .stats-grid{
+    display:grid;grid-template-columns:1fr;gap:32px;
+  }
+  @media(min-width:760px){.stats-grid{grid-template-columns:1fr 1fr 1fr;}}
+  .stat{border-left:2px solid var(--gold);padding-left:20px;}
+  .stat-num{font-family:var(--mono);font-size:clamp(26px,3vw,34px);color:var(--gold);font-weight:500;}
+  .stat-label{font-size:14.5px;color:#e7d9cf;margin-top:6px;max-width:30ch;}
+  .stats-source{
+    font-family:var(--mono);font-size:11px;color:#a98a73;margin-top:30px;letter-spacing:.02em;
+  }
+
+  /* PROBLEM */
+  .section{padding:84px 0;}
+  .problem-grid{display:grid;grid-template-columns:1fr;gap:40px;}
+  @media(min-width:900px){.problem-grid{grid-template-columns:0.85fr 1.15fr;}}
+  .problem-copy p{margin-top:18px;color:#4a3a2f;font-size:16.5px;}
+  .problem-copy p:first-of-type{margin-top:24px;}
+  .pull{
+    font-family:var(--display);font-style:italic;font-size:21px;color:var(--brown);
+    border-left:2px solid var(--rose);padding-left:22px;margin-top:26px;max-width:42ch;
+  }
+
+  /* PATHWAY */
+  .pathway-section{background:var(--paper);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .pathway-head{max-width:640px;margin-bottom:56px;}
+  .stages{display:grid;grid-template-columns:1fr;gap:22px;position:relative;}
+  @media(min-width:900px){.stages{grid-template-columns:1fr 1fr 1fr;}}
+  .stage-card{
+    background:var(--blush);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:30px 26px 26px;
+    position:relative;
+    opacity:0;
+    transform:translateY(16px);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .stage-card.in{opacity:1;transform:translateY(0);}
+  .stage-num{
+    font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:.08em;
+  }
+  .stage-card h3{margin-top:10px;color:var(--brown-deep);}
+  .stage-tag{
+    font-family:var(--mono);font-size:11.5px;color:var(--rose);letter-spacing:.06em;text-transform:uppercase;margin-top:4px;display:block;
+  }
+  .stage-steps{list-style:none;margin:18px 0 0;padding:0;}
+  .stage-steps li{
+    font-size:14.5px;color:#4a3a2f;padding:10px 0;border-top:1px solid var(--line);display:flex;gap:10px;
+  }
+  .stage-steps li:first-child{border-top:none;padding-top:14px;}
+  .stage-steps li::before{
+    content:counter(step);
+    counter-increment:step;
+    font-family:var(--mono);font-size:11px;color:var(--gold);flex-shrink:0;margin-top:2px;
+  }
+  .stage-card{counter-reset:step;}
+  .pathway-arrow{
+    display:none;
+    align-items:center;justify-content:center;color:var(--gold);font-size:22px;
+  }
+  @media(min-width:900px){
+    .stages{grid-template-columns:1fr auto 1fr auto 1fr;align-items:start;}
+    .pathway-arrow{display:flex;}
+  }
+
+  /* AUTHORITY */
+  .authority-grid{display:grid;grid-template-columns:1fr;gap:48px;align-items:start;}
+  @media(min-width:900px){.authority-grid{grid-template-columns:0.9fr 1.1fr;}}
+  .cred-card{
+    background:var(--brown);color:var(--blush);border-radius:6px;padding:32px 28px;
+  }
+  .cred-card .mono{font-family:var(--mono);font-size:12px;color:var(--lavender);letter-spacing:.04em;}
+  .cred-name{font-family:var(--display);font-size:24px;margin-top:10px;color:var(--blush);}
+  .cred-role{font-size:14px;color:#e7d9cf;margin-top:4px;}
+  .cred-list{list-style:none;margin:24px 0 0;padding:0;border-top:1px solid rgba(255,255,255,0.18);}
+  .cred-list li{
+    padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.12);font-size:14px;color:#f1e6dd;display:flex;gap:10px;
+  }
+  .cred-list li::before{content:"—";color:var(--gold);flex-shrink:0;}
+  .authority-copy p{margin-top:16px;font-size:16.5px;color:#4a3a2f;}
+  .compliance-note{
+    margin-top:28px;padding:18px 20px;background:var(--paper);border:1px dashed var(--lavender);border-radius:5px;
+    font-size:13.5px;color:#6b584a;
+  }
+
+  /* PROGRAM */
+  .program{
+    background:var(--rose);
+    color:var(--blush);
+  }
+  .program-grid{display:grid;grid-template-columns:1fr;gap:40px;}
+  @media(min-width:900px){.program-grid{grid-template-columns:1fr 1fr;}}
+  .program h2{color:var(--blush);}
+  .program-copy p{margin-top:16px;color:#fbe9ee;font-size:16.5px;max-width:42ch;}
+  .program-list{list-style:none;margin:26px 0 0;padding:0;}
+  .program-list li{
+    padding:14px 0;border-top:1px solid rgba(255,255,255,0.28);font-size:15px;display:flex;gap:12px;
+  }
+  .program-list li:first-child{border-top:none;}
+  .program-list li::before{content:"✓";color:var(--brown-deep);background:var(--gold);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px;}
+  .program-card{
+    background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.25);border-radius:6px;padding:30px;
+  }
+  .program-card .price-tag{font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:.05em;text-transform:uppercase;}
+  .program-card .price-line{font-family:var(--display);font-size:30px;margin-top:10px;}
+  .program-card .price-sub{font-size:13.5px;color:#fbe9ee;margin-top:8px;}
+
+  /* FINAL CTA */
+  .final-cta{
+    background:var(--brown-deep);color:var(--blush);text-align:center;padding:92px 0;
+  }
+  .final-cta h2{color:var(--blush);max-width:680px;margin:0 auto;}
+  .final-cta .lead{color:#e7d9cf;margin:18px auto 0;}
+  .final-cta .btn{margin-top:34px;}
+
+  footer{
+    background:var(--blush);padding:44px 0 32px;border-top:1px solid var(--line);
+  }
+  .foot-grid{display:flex;flex-wrap:wrap;justify-content:space-between;gap:24px;align-items:flex-start;}
+  .foot-disclaimer{
+    font-size:12.5px;color:#8a6f5a;max-width:60ch;margin-top:18px;line-height:1.6;
+  }
+  .foot-links{display:flex;gap:22px;font-size:13.5px;}
+  .foot-links a{text-decoration:none;opacity:.75;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+    .stage-card{opacity:1;transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo">DYL <span>Method</span> <span style="color:#9a8170;font-size:13px;font-weight:500;">/ Organizations</span></div>
+    <div class="navlinks navlinks-mobile-hide">
+      <a href="#problem">Why It Matters</a>
+      <a href="#pathway">The Pathway</a>
+      <a href="#program">The Program</a>
+    </div>
+    <a href="#cta" class="btn btn-primary nav-cta">Book a Consultation</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">DYL Method for Organizations</p>
+      <h1>The people holding your teams together are running on empty.<br>We help them rebuild — at the root.</h1>
+      <p class="lead" style="margin-top:22px;">DYL Method partners with ERG, DEI, and L&amp;D leaders to bring confidential, root-cause health education to the high-performing women carrying the most invisible load in your organization — before burnout becomes attrition.</p>
+      <div class="hero-ctas">
+        <a href="#cta" class="btn btn-primary">Book a Corporate Consultation</a>
+        <a href="#pathway" class="btn btn-ghost">See How the Program Works</a>
+      </div>
+      <p class="hero-foot">FOUNDED BY A DOUBLE CERTIFIED CELLULAR REGENERATION DETOX SPECIALIST · 1,400+ CLIENTS GUIDED</p>
+    </div>
+    <div class="signal-card">
+      <div class="signal-card-label">Org. Health Signal — Before / After Pathway</div>
+      <svg viewBox="0 0 460 220" xmlns="http://www.w3.org/2000/svg" aria-label="Diagram showing scattered health signal resolving into a clear, stable signal across three program stages">
+        <line x1="0" y1="40" x2="460" y2="40" stroke="#5C2E1A" stroke-opacity="0.08"/>
+        <line x1="0" y1="110" x2="460" y2="110" stroke="#5C2E1A" stroke-opacity="0.08"/>
+        <line x1="0" y1="180" x2="460" y2="180" stroke="#5C2E1A" stroke-opacity="0.08"/>
+        <!-- noisy signal stage 1 -->
+        <path d="M0,150 L20,90 L35,160 L50,70 L65,140 L80,100 L95,150 L110,80 L125,130 L140,150" fill="none" stroke="#C4547A" stroke-width="2.4" stroke-linecap="round"/>
+        <!-- transitional stage 2 -->
+        <path d="M140,150 L170,118 L200,134 L230,108 L260,120" fill="none" stroke="#C9A84C" stroke-width="2.4" stroke-linecap="round"/>
+        <!-- resolved clear signal stage 3 -->
+        <path d="M260,108 L300,104 L340,102 L380,101 L460,100" fill="none" stroke="#5C2E1A" stroke-width="2.8" stroke-linecap="round"/>
+        <line x1="140" y1="20" x2="140" y2="200" stroke="#5C2E1A" stroke-opacity="0.15" stroke-dasharray="3 4"/>
+        <line x1="260" y1="20" x2="260" y2="200" stroke="#5C2E1A" stroke-opacity="0.15" stroke-dasharray="3 4"/>
+        <text x="10" y="205" font-family="IBM Plex Mono" font-size="10" fill="#9a8170">ASSESS</text>
+        <text x="155" y="205" font-family="IBM Plex Mono" font-size="10" fill="#9a8170">RESTORE</text>
+        <text x="275" y="205" font-family="IBM Plex Mono" font-size="10" fill="#9a8170">SUSTAIN</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="stat-num">$4K–$20K</div>
+        <div class="stat-label">lost per employee, per year, to burnout — with presenteeism responsible for up to 89% of that cost</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">$3.27</div>
+        <div class="stat-label">returned in medical-cost savings for every $1 invested in employee wellness programs</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">85%</div>
+        <div class="stat-label">of HR leaders say wellness programs are critical to retaining their top performers</div>
+      </div>
+    </div>
+    <p class="stats-source">Sources: American Journal of Preventive Medicine (burnout cost research) · Harvard wellness ROI research · Wellhub, 2026 Return on Wellbeing report</p>
+  </div>
+</section>
+
+<section class="section" id="problem">
+  <div class="wrap problem-grid">
+    <div>
+      <p class="eyebrow">The Cost Nobody's Tracking</p>
+      <h2>Your best people rarely ask for help.</h2>
+    </div>
+    <div class="problem-copy">
+      <p>She's early to every meeting, carries the team through every deadline, and is usually the first name mentioned when leadership talks about who to promote next. She's also, quietly, managing chronic stress-related health symptoms that your benefits plan was never built to catch early — because nothing about her presentation says "at risk."</p>
+      <p>By the time it shows up on a claims report or a resignation letter, the cost has already compounded: lost focus, lost output, and eventually, a lost employee you spent years developing.</p>
+      <p class="pull">DYL Method exists to interrupt that pattern before it becomes attrition — by addressing root cause, not just symptoms.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pathway-section section" id="pathway">
+  <div class="wrap">
+    <div class="pathway-head">
+      <p class="eyebrow">The Process</p>
+      <h2>The Cellular Restoration Pathway™</h2>
+      <p class="lead" style="margin-top:16px;">Three stages. Nine steps. One framework that turns a confidential health signal into a measurable resilience outcome for your team.</p>
+    </div>
+
+    <div class="stages">
+      <div class="stage-card">
+        <span class="stage-num">STAGE 01</span>
+        <h3>Assess</h3>
+        <span class="stage-tag">Find the signal</span>
+        <ul class="stage-steps">
+          <li>Confidential Health Intake Assessment for every enrolled employee</li>
+          <li>Root-cause tier scoring — early, moderate, or advanced accumulation</li>
+          <li>Anonymized, aggregate risk briefing delivered to your HR/ERG sponsor</li>
+        </ul>
+      </div>
+
+      <div class="pathway-arrow">→</div>
+
+      <div class="stage-card">
+        <span class="stage-num">STAGE 02</span>
+        <h3>Restore</h3>
+        <span class="stage-tag">Address the root</span>
+        <ul class="stage-steps">
+          <li>Cohort enrollment in the Ignite Your Life Bootcamp, corporate edition</li>
+          <li>Twice-weekly live virtual instruction with a Certified Detoxification Specialist</li>
+          <li>Personalized protocol with confidential 1:1 coaching for every participant</li>
+        </ul>
+      </div>
+
+      <div class="pathway-arrow">→</div>
+
+      <div class="stage-card">
+        <span class="stage-num">STAGE 03</span>
+        <h3>Sustain</h3>
+        <span class="stage-tag">Build lasting resilience</span>
+        <ul class="stage-steps">
+          <li>90-day outcome reporting to your sponsor — participation and evidence of progress</li>
+          <li>Optional continuity membership for support between cohorts</li>
+          <li>Annual re-assessment and an expansion pathway for additional teams</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap authority-grid">
+    <div class="cred-card">
+      <p class="mono">FOUNDER</p>
+      <p class="cred-name">Quilla Xi-Berry</p>
+      <p class="cred-role">Founder, DYL Method</p>
+      <ul class="cred-list">
+        <li>Double Certified Cellular Regeneration Detox Specialist</li>
+        <li>Current Naturopathic Doctor student</li>
+        <li>36 years in IT and systems work, prior to DYL Method</li>
+        <li>1,400+ clients guided through root-cause health education</li>
+        <li>Founder, 508(c)(1)(a) faith-based wellness ministry</li>
+      </ul>
+    </div>
+    <div class="authority-copy">
+      <p class="eyebrow">Why DYL Method</p>
+      <h2>Built by someone who translates for a living.</h2>
+      <p>Before DYL Method, Quilla spent 36 years inside IT and systems work — the kind of career built on root-cause diagnosis, not guesswork. She brought that same systematic thinking into wellness: a documented intake-and-tiering process, structured protocols, and reporting your sponsor can actually bring back to leadership.</p>
+      <p>DYL Method works alongside your existing benefits and each participant's own healthcare providers — not in place of them. The goal is collaboration with your medical plan, not conflict with it.</p>
+      <div class="compliance-note">Client outcomes are documented case-by-case and shared with corporate sponsors under a signed case-review agreement, available during your consultation.</div>
+    </div>
+  </div>
+</section>
+
+<section class="program" id="program">
+  <div class="wrap program-grid">
+    <div class="program-copy">
+      <p class="eyebrow" style="color:var(--lavender);">The Program</p>
+      <h2>Ignite Your Life: DYL Method Bootcamp — Corporate Edition</h2>
+      <p>A 4-week, cohort-based program built on the same Health Intake Assessment and tiering model used with 1,400+ individual clients — adapted for groups, departments, and ERG cohorts of any size.</p>
+      <ul class="program-list">
+        <li>4-week intensive, structured around the Cellular Restoration Pathway</li>
+        <li>Twice-weekly live virtual sessions with a Certified Detoxification Specialist</li>
+        <li>Confidential 1:1 coaching access for every participant</li>
+        <li>Sponsor-facing progress reporting at 30 and 90 days</li>
+      </ul>
+    </div>
+    <div class="program-card">
+      <p class="price-tag">Cohort Pricing</p>
+      <p class="price-line">Scaled to your budget line</p>
+      <p class="price-sub">Pricing is structured per cohort and sized to fit ERG, DEI, or L&amp;D budget allocations — most engagements fall between a single-department pilot and an organization-wide rollout.</p>
+      <a href="#cta" class="btn btn-on-dark" style="margin-top:22px;">Get Cohort Pricing</a>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta" id="cta">
+  <div class="wrap">
+    <h2>Let's build the case for your budget owner.</h2>
+    <p class="lead">Book a 30-minute consultation. We'll walk through the Cellular Restoration Pathway, answer your sponsor's questions, and send a one-page brief you can forward internally.</p>
+    <a href="#" class="btn btn-on-dark">Book a Corporate Consultation</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo">DYL <span>Method</span></div>
+        <p class="foot-disclaimer">DYL Method operates as a 508(c)(1)(a) faith-based wellness ministry. Programs are educational and supportive in nature and are not a substitute for medical diagnosis or treatment. Participants are encouraged to coordinate with their existing healthcare providers throughout the program.</p>
+      </div>
+      <div class="foot-links">
+        <a href="#problem">Why It Matters</a>
+        <a href="#pathway">The Pathway</a>
+        <a href="#program">The Program</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const cards = document.querySelectorAll('.stage-card');
+  if ('IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('in'), i * 90);
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    cards.forEach(c => obs.observe(c));
+  } else {
+    cards.forEach(c => c.classList.add('in'));
+  }
+</script>
+
+</body>
+</html>
