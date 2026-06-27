@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Weekly Corporate Pitch Tracker</title>
+<style>
+  :root{
+    --parchment:#F7F3EC;
+    --paper:#FFFDF8;
+    --ink:#1B2A4A;
+    --ink-soft:#4C5A78;
+    --rule:#DCD4BF;
+    --gold:#B8860B;
+    --gold-fill:#F3E6C4;
+    --sage:#516B52;
+    --sage-fill:#E3ECE1;
+    --clay:#A8482F;
+    --clay-fill:#F4DFD7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--parchment);
+    color:var(--ink);
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  .app{max-width:880px;margin:0 auto;padding:28px 20px 60px;}
+  .masthead{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:3px solid var(--ink);padding-bottom:10px;margin-bottom:6px;
+  }
+  .masthead h1{
+    font-size:26px;margin:0;letter-spacing:.3px;font-weight:700;
+  }
+  .masthead .tag{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-soft);
+  }
+  .sub{
+    font-family: Arial, Helvetica, sans-serif;font-size:12.5px;color:var(--ink-soft);
+    margin:8px 0 22px;
+  }
+  .weeknav{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--paper);border:1px solid var(--rule);border-radius:4px;
+    padding:10px 14px;margin-bottom:18px;font-family:Arial, Helvetica, sans-serif;
+  }
+  .weeknav .range{font-family:Georgia,serif;font-size:17px;font-weight:700;}
+  .weeknav .btns button{margin-left:8px;}
+  button{
+    font-family:Arial, Helvetica, sans-serif;font-size:12px;
+    background:var(--paper);border:1px solid var(--ink);color:var(--ink);
+    padding:6px 12px;border-radius:3px;cursor:pointer;
+  }
+  button:hover{background:var(--gold-fill);}
+  button.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  button.primary:hover{background:#283d68;}
+  button.ghost{border-color:var(--rule);color:var(--ink-soft);}
+  button.small{padding:3px 8px;font-size:11px;}
+  .card{
+    background:var(--paper);border:1px solid var(--rule);border-radius:4px;
+    padding:18px 20px;margin-bottom:18px;
+  }
+  .card h2{
+    font-size:14px;margin:0 0 14px;letter-spacing:.5px;text-transform:uppercase;
+    font-family:Arial, Helvetica, sans-serif;color:var(--ink-soft);
+    border-bottom:1px solid var(--rule);padding-bottom:8px;
+  }
+  .goalrow{margin-bottom:14px;}
+  .goalrow:last-child{margin-bottom:0;}
+  .goalrow .label{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-family:Arial, Helvetica, sans-serif;font-size:12.5px;margin-bottom:5px;
+  }
+  .goalrow .label .name{color:var(--ink);font-weight:700;}
+  .goalrow .label .nums{font-family:'Courier New',monospace;font-size:13px;color:var(--ink-soft);}
+  .track{height:10px;background:#EDE7D8;border:1px solid var(--rule);border-radius:2px;overflow:hidden;}
+  .fill{height:100%;}
+  .fill.gold{background:var(--gold);}
+  .fill.sage{background:var(--sage);}
+  .fill.clay{background:var(--clay);}
+  .status{
+    font-family:Arial, Helvetica, sans-serif;font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.5px;font-weight:700;padding:2px 7px;border-radius:2px;margin-left:8px;
+  }
+  .status.gold{background:var(--gold-fill);color:#7A5B07;}
+  .status.sage{background:var(--sage-fill);color:var(--sage);}
+  .status.clay{background:var(--clay-fill);color:var(--clay);}
+  table{width:100%;border-collapse:collapse;font-family:Arial, Helvetica, sans-serif;font-size:12.5px;}
+  .ledger th{
+    text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;
+    color:var(--ink-soft);border-bottom:2px solid var(--ink);padding:6px 8px;font-weight:700;
+  }
+  .ledger td{border-bottom:1px solid var(--rule);padding:8px 8px;vertical-align:middle;}
+  .ledger tr:last-child td{border-bottom:1px solid var(--ink);}
+  .ledger input[type=number]{
+    width:56px;font-family:'Courier New',monospace;font-size:13px;
+    border:1px solid var(--rule);border-radius:2px;padding:4px 6px;background:var(--parchment);
+    color:var(--ink);
+  }
+  .ledger input[type=number]:focus{outline:1px solid var(--gold);background:#fff;}
+  .daytotal{font-family:'Courier New',monospace;font-weight:700;}
+  .tally{display:inline-flex;gap:3px;vertical-align:middle;margin-left:8px;}
+  .closing-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  .closing-grid label{display:block;font-size:11px;color:var(--ink-soft);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
+  .closing-grid input{
+    width:100%;font-family:'Courier New',monospace;font-size:15px;padding:6px 8px;
+    border:1px solid var(--rule);border-radius:2px;background:var(--parchment);color:var(--ink);
+  }
+  .closing-grid input:focus{outline:1px solid var(--gold);background:#fff;}
+  .prospect-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-family:Arial, Helvetica, sans-serif;font-size:12.5px;}
+  .prospect-row input[type=text]{
+    flex:1;padding:6px 8px;border:1px solid var(--rule);border-radius:2px;background:var(--parchment);
+    font-family:Arial, Helvetica, sans-serif;font-size:12.5px;color:var(--ink);
+  }
+  .prospect-row input[type=text]:focus{outline:1px solid var(--gold);background:#fff;}
+  .touch-dots{display:flex;gap:3px;}
+  .touch-dot{
+    width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink-soft);
+  }
+  .touch-dot.filled{background:var(--gold);border-color:var(--gold);}
+  .addrow{display:flex;gap:8px;margin-top:10px;font-family:Arial, Helvetica, sans-serif;}
+  .addrow input{flex:1;padding:6px 8px;border:1px solid var(--rule);border-radius:2px;background:var(--parchment);font-size:12.5px;font-family:Arial, Helvetica, sans-serif;}
+  .empty{font-family:Arial, Helvetica, sans-serif;font-size:12.5px;color:var(--ink-soft);font-style:italic;}
+  .statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  .stat{background:var(--parchment);border:1px solid var(--rule);border-radius:3px;padding:10px 12px;}
+  .stat .k{font-family:Arial, Helvetica, sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--ink-soft);}
+  .stat .v{font-family:'Courier New',monospace;font-size:19px;font-weight:700;margin-top:3px;}
+  .forecastline{
+    margin-top:14px;font-family:Arial, Helvetica, sans-serif;font-size:12.5px;color:var(--ink-soft);
+    border-top:1px solid var(--rule);padding-top:12px;
+  }
+  .forecastline b{color:var(--ink);font-family:'Courier New',monospace;}
+  .histwrap{max-height:230px;overflow-y:auto;}
+  .histwrap table{font-size:12px;}
+  .histwrap th{position:sticky;top:0;background:var(--paper);}
+  .curweek{background:var(--gold-fill);}
+  .savebar{
+    font-family:Arial, Helvetica, sans-serif;font-size:11px;color:var(--ink-soft);
+    text-align:right;margin-top:-8px;margin-bottom:16px;min-height:14px;
+  }
+  .reminder{
+    font-family:Arial, Helvetica, sans-serif;font-size:12.5px;color:var(--ink-soft);
+    background:var(--gold-fill);border:1px solid var(--gold);border-radius:3px;
+    padding:10px 14px;margin-bottom:18px;
+  }
+  .loading{font-family:Arial, Helvetica, sans-serif;color:var(--ink-soft);padding:40px 0;text-align:center;}
+</style>
+</head>
+<body>
+<div class="app" id="app"><div class="loading">Loading your tracker&hellip;</div></div>
+
+<script>
+const WEEK_GOAL_PITCHES = 300;
+const WEEK_GOAL_CALLS_LOW = 3;
+const WEEK_GOAL_CALLS_HIGH = 5;
+const REV_SPLIT = 0.8;
+const PRESS_SPLIT = 0.2;
+const DAYS = ['mon','tue','wed','thu','fri'];
+const DAY_LABELS = {mon:'Monday',tue:'Tuesday',wed:'Wednesday',thu:'Thursday',fri:'Friday'};
+
+let store = { weeks: {}, prospects: [] };
+let currentMonday = getMonday(new Date());
+
+function pad(n){ return n.toString().padStart(2,'0'); }
+function isoDate(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function getMonday(d){
+  const x = new Date(d);
+  const day = x.getDay();
+  const diff = day===0 ? -6 : 1-day;
+  x.setDate(x.getDate()+diff);
+  x.setHours(0,0,0,0);
+  return x;
+}
+function addWeeks(d, n){ const x = new Date(d); x.setDate(x.getDate()+n*7); return x; }
+function fmtRange(monday){
+  const fri = new Date(monday); fri.setDate(fri.getDate()+4);
+  const opts1 = {month:'short', day:'numeric'};
+  const sameMonth = monday.getMonth()===fri.getMonth();
+  const left = monday.toLocaleDateString('en-US', opts1);
+  const right = sameMonth ? fri.getDate() : fri.toLocaleDateString('en-US', opts1);
+  return `Week of ${left}\u2013${right}, ${fri.getFullYear()}`;
+}
+function blankWeek(){
+  return {
+    days: { mon:{rev:0,press:0}, tue:{rev:0,press:0}, wed:{rev:0,press:0}, thu:{rev:0,press:0}, fri:{rev:0,press:0} },
+    calls:0, proposals:0, closed:0, revenue:0
+  };
+}
+function peekWeek(key){
+  return store.weeks[key] || blankWeek();
+}
+function weekTotals(w){
+  let rev=0, press=0;
+  DAYS.forEach(d=>{ rev += Number(w.days[d].rev)||0; press += Number(w.days[d].press)||0; });
+  return { rev, press, total: rev+press };
+}
+
+async function loadData(){
+  try{
+    const res = await window.storage.get('tracker-data', false);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      store.weeks = parsed.weeks || {};
+      store.prospects = parsed.prospects || [];
+    }
+  }catch(e){
+    store = { weeks:{}, prospects:[] };
+  }
+}
+let saveTimer = null;
+function scheduleSave(){
+  const bar = document.getElementById('savebar');
+  if(bar) bar.textContent = 'Saving\u2026';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveData, 350);
+}
+async function saveData(){
+  const bar = document.getElementById('savebar');
+  try{
+    await window.storage.set('tracker-data', JSON.stringify(store), false);
+    if(bar) bar.textContent = 'Saved \u2713  (' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) + ')';
+  }catch(e){
+    if(bar) bar.textContent = 'Could not save \u2014 your last change may not persist.';
+  }
+}
+
+function tallySVG(n){
+  n = Math.max(0, Math.round(n));
+  const draw = Math.min(60, n);
+  const groups = Math.floor(draw/5);
+  const rem = draw%5;
+  let html = '';
+  for(let g=0; g<groups; g++){
+    html += groupSVG(5);
+  }
+  if(rem>0) html += groupSVG(rem);
+  if(n===0) html += '<span style="font-family:Courier New,monospace;color:var(--ink-soft);font-size:12px;">\u2014</span>';
+  if(n>60) html += `<span style="font-family:Courier New,monospace;color:var(--gold);font-size:12px;font-weight:700;margin-left:4px;">+${n-60}</span>`;
+  return html;
+}
+function groupSVG(count){
+  const w = count===5 ? 22 : count*4+2;
+  let lines = '';
+  for(let i=0;i<count;i++){
+    const x = 2+i*4;
+    lines += `<line x1="${x}" y1="2" x2="${x}" y2="18" stroke="#1B2A4A" stroke-width="1.6"/>`;
+  }
+  if(count===5){
+    lines += `<line x1="0" y1="18" x2="20" y2="1" stroke="#B8860B" stroke-width="1.8"/>`;
+  }
+  return `<svg width="${w}" height="20" style="display:inline-block;vertical-align:middle;">${lines}</svg>`;
+}
+
+function statusFor(actual, target, kind){
+  if(kind==='min'){
+    if(actual>=target) return 'sage';
+    if(actual>=target*0.6) return 'gold';
+    return 'clay';
+  }
+  return 'gold';
+}
+
+function aggregateAll(){
+  let pitches=0, calls=0, closed=0, revenue=0, weekCount=0;
+  Object.values(store.weeks).forEach(w=>{
+    const t = weekTotals(w);
+    if(t.total>0 || w.calls>0 || w.closed>0 || w.revenue>0) weekCount++;
+    pitches += t.total;
+    calls += Number(w.calls)||0;
+    closed += Number(w.closed)||0;
+    revenue += Number(w.revenue)||0;
+  });
+  return { pitches, calls, closed, revenue, weekCount };
+}
+
+function captureFocus(){
+  const el = document.activeElement;
+  if(!el || el.tagName!=='INPUT') return null;
+  let selector = null;
+  if(el.id){ selector = '#'+el.id; }
+  else if(el.hasAttribute('data-day')){ selector = `input[data-day="${el.getAttribute('data-day')}"][data-field="${el.getAttribute('data-field')}"]`; }
+  else if(el.hasAttribute('data-id')){ selector = `input[data-id="${el.getAttribute('data-id')}"][data-field="name"]`; }
+  if(!selector) return null;
+  return { selector, start: el.selectionStart, end: el.selectionEnd };
+}
+function restoreFocus(info){
+  if(!info) return;
+  const el = document.querySelector(info.selector);
+  if(el){
+    el.focus();
+    if(typeof info.start==='number' && el.setSelectionRange){
+      try{ el.setSelectionRange(info.start, info.end); }catch(e){}
+    }
+  }
+}
+
+function render(){
+  const focusInfo = captureFocus();
+  const key = isoDate(currentMonday);
+  const w = peekWeek(key);
+  const t = weekTotals(w);
+  const actualRevPct = t.total>0 ? (t.rev/t.total*100) : 0;
+  const actualPressPct = t.total>0 ? (t.press/t.total*100) : 0;
+  const pitchPct = Math.min(100, t.total/WEEK_GOAL_PITCHES*100);
+  const callStatus = w.calls>=WEEK_GOAL_CALLS_LOW ? 'sage' : (w.calls>=1 ? 'gold' : 'clay');
+  const pitchStatus = t.total>=WEEK_GOAL_PITCHES ? 'sage' : (t.total>=WEEK_GOAL_PITCHES*0.6 ? 'gold' : 'clay');
+  const splitOk = Math.abs(actualRevPct-80) <= 10;
+  const splitStatus = t.total===0 ? 'clay' : (splitOk ? 'sage' : 'gold');
+
+  const agg = aggregateAll();
+  const pitchToCall = agg.pitches>0 ? (agg.calls/agg.pitches*100) : null;
+  const closeRate = agg.calls>0 ? (agg.closed/agg.calls*100) : null;
+  const avgDeal = agg.closed>0 ? (agg.revenue/agg.closed) : null;
+  const avgWeeklyPitches = agg.weekCount>0 ? (agg.pitches/agg.weekCount) : 0;
+  const annualPitches = avgWeeklyPitches*52;
+  const annualCalls = pitchToCall!==null ? annualPitches*(pitchToCall/100) : null;
+  const annualCloses = (annualCalls!==null && closeRate!==null) ? annualCalls*(closeRate/100) : null;
+  const annualRevenue = (annualCloses!==null && avgDeal!==null) ? annualCloses*avgDeal : null;
+
+  const sortedWeekKeys = Object.keys(store.weeks).sort().reverse();
+
+  document.getElementById('app').innerHTML = `
+    <div class="masthead">
+      <h1>Weekly Corporate Pitch Tracker</h1>
+      <div class="tag">DYL Corporate Track</div>
+    </div>
+    <div class="sub">Built around Ashley Kirkwood\u2019s weekly assignment: 300 pitches (60/day, 5 days), 80% revenue-target / 20% press, 3\u20135 sales calls booked, 7 follow-up touches per prospect.</div>
+
+    <div class="weeknav">
+      <div class="range">${fmtRange(currentMonday)}</div>
+      <div class="btns">
+        <button class="ghost small" id="prevWeek">\u2039 Prev</button>
+        <button class="ghost small" id="thisWeek">This week</button>
+        <button class="ghost small" id="nextWeek">Next \u203a</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>This week\u2019s scoreboard</h2>
+      <div class="goalrow">
+        <div class="label">
+          <span class="name">Pitches sent <span class="status ${pitchStatus}">${t.total} / ${WEEK_GOAL_PITCHES}</span></span>
+          <span class="nums">${Math.round(pitchPct)}%</span>
+        </div>
+        <div class="track"><div class="fill ${pitchStatus}" style="width:${pitchPct}%;"></div></div>
+      </div>
+      <div class="goalrow">
+        <div class="label">
+          <span class="name">Revenue / press split <span class="status ${splitStatus}">${t.total>0? Math.round(actualRevPct)+'% / '+Math.round(actualPressPct)+'%':'no data'}</span></span>
+          <span class="nums">target 80% / 20%</span>
+        </div>
+        <div class="track"><div class="fill ${splitStatus}" style="width:${Math.min(100,actualRevPct)}%;"></div></div>
+      </div>
+      <div class="goalrow">
+        <div class="label">
+          <span class="name">Sales calls booked <span class="status ${callStatus}">${w.calls} / 3\u20135</span></span>
+        </div>
+        <div class="track"><div class="fill ${callStatus}" style="width:${Math.min(100, (w.calls/WEEK_GOAL_CALLS_HIGH)*100)}%;"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Daily pitch ledger</h2>
+      <table class="ledger">
+        <tr><th>Day</th><th>Revenue-target pitches</th><th>Press / media pitches</th><th>Day total</th></tr>
+        ${DAYS.map(d=>`
+          <tr>
+            <td>${DAY_LABELS[d]}</td>
+            <td><input type="text" inputmode="numeric" data-day="${d}" data-field="rev" value="${w.days[d].rev}"/></td>
+            <td><input type="text" inputmode="numeric" data-day="${d}" data-field="press" value="${w.days[d].press}"/></td>
+            <td><span class="daytotal">${(Number(w.days[d].rev)||0)+(Number(w.days[d].press)||0)}</span><span class="tally">${tallySVG((Number(w.days[d].rev)||0)+(Number(w.days[d].press)||0))}</span></td>
+          </tr>`).join('')}
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Week\u2019s results</h2>
+      <div class="closing-grid">
+        <div><label>Sales calls booked</label><input type="text" inputmode="numeric" id="calls" value="${w.calls}"/></div>
+        <div><label>Proposals sent</label><input type="text" inputmode="numeric" id="proposals" value="${w.proposals}"/></div>
+        <div><label>Deals closed</label><input type="text" inputmode="numeric" id="closed" value="${w.closed}"/></div>
+        <div><label>Revenue closed ($)</label><input type="text" inputmode="numeric" id="revenue" value="${w.revenue}"/></div>
+      </div>
+    </div>
+
+    <div class="reminder">7-touch follow-up rule: most deals are lost to under-following-up, not to a real &ldquo;no.&rdquo; Track open prospects below until each one hits 7 touches, closes, or is dropped.</div>
+
+    <div class="card">
+      <h2>Active follow-ups</h2>
+      <div id="prospectList">
+        ${store.prospects.length===0 ? '<div class="empty">No prospects being tracked yet. Add one below.</div>' : ''}
+        ${store.prospects.map(pr=>`
+          <div class="prospect-row" data-id="${pr.id}">
+            <input type="text" data-id="${pr.id}" data-field="name" value="${escapeAttr(pr.name)}" placeholder="Prospect / company name"/>
+            <div class="touch-dots">
+              ${[1,2,3,4,5,6,7].map(i=>`<div class="touch-dot ${i<=pr.touches?'filled':''}" data-id="${pr.id}" data-touch="${i}"></div>`).join('')}
+            </div>
+            <button class="small ghost" data-id="${pr.id}" data-action="reset">Reset</button>
+            <button class="small ghost" data-id="${pr.id}" data-action="remove">Remove</button>
+          </div>`).join('')}
+      </div>
+      <div class="addrow">
+        <input type="text" id="newProspect" placeholder="Add a prospect or company to follow up with\u2026"/>
+        <button id="addProspect">+ Add</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Personal stats &amp; forecast (all logged weeks)</h2>
+      <div class="statgrid">
+        <div class="stat"><div class="k">Pitch-to-call rate</div><div class="v">${pitchToCall!==null?pitchToCall.toFixed(1)+'%':'\u2014'}</div></div>
+        <div class="stat"><div class="k">Close rate</div><div class="v">${closeRate!==null?closeRate.toFixed(0)+'%':'\u2014'}</div></div>
+        <div class="stat"><div class="k">Avg. deal size</div><div class="v">${avgDeal!==null?'$'+Math.round(avgDeal).toLocaleString():'\u2014'}</div></div>
+        <div class="stat"><div class="k">Weeks logged</div><div class="v">${agg.weekCount}</div></div>
+      </div>
+      <div class="forecastline">
+        ${agg.weekCount<2 || pitchToCall===null || closeRate===null || avgDeal===null
+          ? 'Log at least two weeks with pitches, calls, closes, and revenue to unlock your annual forecast \u2014 the same projection Ashley ran live from her own 250-pitch / 5-call / 4-close example.'
+          : `Holding your average of <b>${Math.round(avgWeeklyPitches)}</b> pitches/week steady for a year projects to roughly <b>${Math.round(annualPitches).toLocaleString()}</b> pitches \u2192 <b>${Math.round(annualCalls).toLocaleString()}</b> sales calls \u2192 <b>${Math.round(annualCloses).toLocaleString()}</b> closed deals \u2192 <b>$${Math.round(annualRevenue).toLocaleString()}</b> in annual revenue.`}
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Week-by-week history</h2>
+      <div class="histwrap">
+        ${sortedWeekKeys.length===0 ? '<div class="empty">Nothing logged yet \u2014 this week will appear here once you enter pitch numbers above.</div>' : `
+        <table>
+          <tr><th>Week of</th><th>Pitches</th><th>Split (rev/press)</th><th>Calls</th><th>Closed</th><th>Revenue</th></tr>
+          ${sortedWeekKeys.map(k=>{
+            const ww = store.weeks[k];
+            const tt = weekTotals(ww);
+            const rp = tt.total>0 ? Math.round(tt.rev/tt.total*100)+'% / '+Math.round(tt.press/tt.total*100)+'%' : '\u2014';
+            const isCur = k===key;
+            const d = new Date(k+'T00:00:00');
+            return `<tr class="${isCur?'curweek':''}"><td>${d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td><td>${tt.total}</td><td>${rp}</td><td>${ww.calls}</td><td>${ww.closed}</td><td>$${(Number(ww.revenue)||0).toLocaleString()}</td></tr>`;
+          }).join('')}
+        </table>`}
+      </div>
+    </div>
+
+    <div class="savebar" id="savebar"></div>
+  `;
+
+  attachHandlers(key, w);
+  restoreFocus(focusInfo);
+}
+
+function escapeAttr(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+function attachHandlers(key, w){
+  function ensureStored(){ if(!store.weeks[key]) store.weeks[key] = w; }
+
+  document.getElementById('prevWeek').onclick = ()=>{ currentMonday = addWeeks(currentMonday,-1); render(); };
+  document.getElementById('nextWeek').onclick = ()=>{ currentMonday = addWeeks(currentMonday,1); render(); };
+  document.getElementById('thisWeek').onclick = ()=>{ currentMonday = getMonday(new Date()); render(); };
+
+  document.querySelectorAll('.ledger input').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      ensureStored();
+      const day = inp.getAttribute('data-day');
+      const field = inp.getAttribute('data-field');
+      const digits = inp.value.replace(/[^0-9]/g,'');
+      w.days[day][field] = digits==='' ? 0 : Math.min(999, Number(digits));
+      scheduleSave();
+      render();
+    });
+  });
+
+  ['calls','proposals','closed','revenue'].forEach(id=>{
+    const el = document.getElementById(id);
+    el.addEventListener('input', ()=>{
+      ensureStored();
+      const digits = el.value.replace(/[^0-9]/g,'');
+      w[id] = digits==='' ? 0 : Number(digits);
+      scheduleSave();
+      render();
+    });
+  });
+
+  document.getElementById('addProspect').onclick = ()=>{
+    const inp = document.getElementById('newProspect');
+    const name = inp.value.trim();
+    if(!name) return;
+    store.prospects.push({ id: 'p'+Date.now(), name, touches:0 });
+    scheduleSave();
+    render();
+  };
+  document.getElementById('newProspect').addEventListener('keydown', e=>{
+    if(e.key==='Enter') document.getElementById('addProspect').click();
+  });
+
+  document.querySelectorAll('.prospect-row input[type=text]').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      const id = inp.getAttribute('data-id');
+      const pr = store.prospects.find(p=>p.id===id);
+      if(pr){ pr.name = inp.value; scheduleSave(); render(); }
+    });
+  });
+  document.querySelectorAll('.touch-dot').forEach(dot=>{
+    dot.addEventListener('click', ()=>{
+      const id = dot.getAttribute('data-id');
+      const n = Number(dot.getAttribute('data-touch'));
+      const pr = store.prospects.find(p=>p.id===id);
+      if(pr){ pr.touches = pr.touches===n ? n-1 : n; scheduleSave(); render(); }
+    });
+  });
+  document.querySelectorAll('button[data-action=reset]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.getAttribute('data-id');
+      const pr = store.prospects.find(p=>p.id===id);
+      if(pr){ pr.touches = 0; scheduleSave(); render(); }
+    });
+  });
+  document.querySelectorAll('button[data-action=remove]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.getAttribute('data-id');
+      store.prospects = store.prospects.filter(p=>p.id!==id);
+      scheduleSave(); render();
+    });
+  });
+}
+
+(async function init(){
+  await loadData();
+  render();
+})();
+</script>
+</body>
+</html>
