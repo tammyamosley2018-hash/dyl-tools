@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DYL Method – Highway Sort</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --soil:  #2C1A0E;
+    --amber: #C8793A;
+    --gold:  #E8A84A;
+    --moss:  #3D5A3E;
+    --cream: #F9F3EA;
+    --clay:  #D4A574;
+    --red:   #b94040;
+  }
+  body { background: var(--cream); color: var(--soil); font-family: 'Inter', sans-serif; min-height: 100vh; padding-bottom: 60px; }
+
+  header { background: var(--soil); padding: 26px 20px 20px; text-align: center; }
+  header .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--clay); margin-bottom: 8px; }
+  header h1 { font-family: 'Playfair Display', serif; font-size: clamp(20px, 5vw, 30px); color: var(--cream); line-height: 1.2; }
+  header p { margin-top: 7px; font-size: 13px; color: var(--clay); }
+
+  main { max-width: 700px; margin: 0 auto; padding: 0 16px; }
+
+  .instruction {
+    background: white;
+    border-left: 4px solid var(--amber);
+    padding: 18px 20px;
+    margin: 24px 0 20px;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .instruction strong { color: var(--amber); }
+
+  /* CARD BANK */
+  .card-bank-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--clay); margin-bottom: 10px;
+  }
+  .card-bank {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    min-height: 60px; margin-bottom: 24px;
+  }
+
+  .sort-card {
+    background: white;
+    border: 2px solid var(--clay);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--soil);
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.15s;
+    touch-action: none;
+  }
+  .sort-card:hover { border-color: var(--amber); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(44,26,14,0.12); }
+  .sort-card.dragging { opacity: 0.4; }
+
+  /* DROP ZONES */
+  .zones { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 520px) { .zones { grid-template-columns: 1fr; } }
+
+  .zone {
+    background: white;
+    border: 2px dashed var(--clay);
+    border-radius: 10px;
+    padding: 16px 14px 14px;
+    min-height: 160px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .zone.over { border-color: var(--amber); background: #fff8f2; }
+  .zone.open-zone { border-color: var(--moss); }
+  .zone.close-zone { border-color: var(--red); }
+
+  .zone-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .open-zone .zone-title { color: var(--moss); }
+  .close-zone .zone-title { color: var(--red); }
+
+  .zone-sub { font-size: 11px; color: var(--clay); margin-bottom: 12px; }
+  .zone-cards { display: flex; flex-wrap: wrap; gap: 8px; min-height: 36px; }
+  .zone-cards .sort-card { cursor: pointer; }
+  .zone-cards .sort-card:hover { border-color: var(--clay); transform: none; }
+
+  /* BUTTONS */
+  .btn-row { display: flex; gap: 12px; justify-content: center; margin: 10px 0 24px; flex-wrap: wrap; }
+  .check-btn, .reset-btn {
+    border: none; border-radius: 8px; padding: 12px 28px;
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .check-btn { background: var(--amber); color: white; }
+  .check-btn:hover { background: var(--soil); }
+  .reset-btn { background: white; color: var(--soil); border: 2px solid var(--clay); }
+  .reset-btn:hover { border-color: var(--soil); }
+
+  /* FEEDBACK */
+  .feedback { display: none; }
+  .feedback-item {
+    background: white;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(44,26,14,0.07);
+    border-left: 5px solid var(--clay);
+  }
+  .feedback-item.correct { border-left-color: var(--moss); }
+  .feedback-item.wrong { border-left-color: var(--red); }
+  .feedback-item.surprise { border-left-color: var(--gold); }
+
+  .fb-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .fb-badge {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 4px; color: white;
+  }
+  .correct .fb-badge { background: var(--moss); }
+  .wrong .fb-badge { background: var(--red); }
+  .surprise .fb-badge { background: var(--gold); color: var(--soil); }
+
+  .fb-name { font-weight: 700; font-size: 14px; }
+  .fb-text { font-size: 13px; line-height: 1.6; color: var(--soil); }
+
+  .score-banner {
+    background: var(--soil); color: var(--cream);
+    border-radius: 10px; padding: 20px; text-align: center; margin-bottom: 20px; display: none;
+  }
+  .score-banner h2 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 6px; }
+  .score-banner p { font-size: 13px; color: var(--clay); }
+
+  .debrief-q {
+    background: var(--amber); color: white; border-radius: 10px;
+    padding: 18px 20px; margin-top: 10px; display: none; font-size: 14px; line-height: 1.6;
+  }
+  .debrief-q strong { font-family: 'Playfair Display', serif; font-size: 16px; display: block; margin-bottom: 6px; }
+
+  footer { text-align: center; margin-top: 32px; font-size: 11px; color: var(--clay); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">DYL Method — Kidney Series Class 1</div>
+  <h1>Opens the Highway vs Closes the Highway</h1>
+  <p>Sort each card into the correct column</p>
+</header>
+
+<main>
+  <div class="instruction">
+    Each card below is a food, drink, or habit. Sort it into <strong>Opens the Highway</strong> (supports kidney filtration) or <strong>Closes the Highway</strong> (congests the nephrons). Some cards will surprise you. Tap a card to move it, then tap a column to place it.</div>
+
+  <div class="card-bank-label">Cards to Sort</div>
+  <div class="card-bank" id="bank"></div>
+
+  <div class="zones">
+    <div class="zone open-zone" id="zone-open" data-zone="open">
+      <div class="zone-title">Opens the Highway</div>
+      <div class="zone-sub">Supports kidney filtration</div>
+      <div class="zone-cards" id="cards-open"></div>
+    </div>
+    <div class="zone close-zone" id="zone-close" data-zone="close">
+      <div class="zone-title">Closes the Highway</div>
+      <div class="zone-sub">Congests the nephrons</div>
+      <div class="zone-cards" id="cards-close"></div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="check-btn" id="checkBtn">Check My Answers</button>
+    <button class="reset-btn" id="resetBtn">Start Over</button>
+  </div>
+
+  <div class="score-banner" id="scoreBanner">
+    <h2 id="scoreText">—</h2>
+    <p id="scoreSubtext">—</p>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+  <div class="debrief-q" id="debriefQ">
+    <strong>Debrief question for class:</strong>
+    Which card surprised you the most? Why did you put it where you did?
+  </div>
+
+  <footer>DYL Method Ministry &nbsp;|&nbsp; Kidney Series Class 1 &nbsp;|&nbsp; Quilla</footer>
+</main>
+
+<script>
+const cards = [
+  {
+    id: 'watermelon', label: 'Watermelon', correct: 'open', surprise: false,
+    feedback: 'Watermelon is highly astringent and has a powerful cleansing effect on the kidneys. It is one of the best highway openers there is.'
+  },
+  {
+    id: 'coffee', label: 'Coffee', correct: 'close', surprise: true,
+    feedback: 'This one surprises most people. Coffee feels like it flushes the kidneys because it makes you urinate more. But coffee is acidic and irritates the nephron tissue — it is closing the highway at the same time it pushes fluid through.'
+  },
+  {
+    id: 'meat', label: 'Grilled Chicken', correct: 'close', surprise: true,
+    feedback: 'Even lean protein like chicken creates acid waste in the body. That acid load lands directly on the nephrons. It is one of the top highway closers regardless of how clean the source is.'
+  },
+  {
+    id: 'grapes', label: 'Grapes', correct: 'open', surprise: false,
+    feedback: 'Grapes are astringent fruits with a strong solvent action on kidney tissue. They help dissolve sediment and open filtration pathways.'
+  },
+  {
+    id: 'soda', label: 'Sparkling Water', correct: 'close', surprise: true,
+    feedback: 'Carbonation — even in plain sparkling water — increases acid load in the body. The kidneys have to work harder to manage it. Flat water is always the better choice for filtration.'
+  },
+  {
+    id: 'parsley', label: 'Parsley Tea', correct: 'open', surprise: false,
+    feedback: 'Parsley is a classic kidney herb. It acts as a diuretic, helps dissolve sediment, and supports nephron tissue directly.'
+  },
+  {
+    id: 'chocolate', label: 'Dark Chocolate', correct: 'close', surprise: true,
+    feedback: 'Many people believe dark chocolate is healthy. But chocolate is acidic and hard on the kidneys. It is a highway closer even in small amounts when the kidneys are already burdened.'
+  },
+  {
+    id: 'cornsilk', label: 'Corn Silk Tea', correct: 'open', surprise: false,
+    feedback: 'Corn silk is one of the great kidney herbs. It powerfully cleanses bladder and kidney tissue and helps remove toxins and mucus from the urinary tract.'
+  },
+  {
+    id: 'morewater', label: 'Drinking More Water', correct: 'close', surprise: true,
+    feedback: 'This is the biggest surprise. More water does not open a clogged filter — it just pushes more volume through a narrowed road. You cannot flush a backed-up highway. You have to open the drain first.'
+  },
+  {
+    id: 'juniper', label: 'Juniper Berry', correct: 'open', surprise: false,
+    feedback: 'Juniper berry is one of the great kidney herbs. It has strong antiseptic and diuretic action and directly supports filtration through the nephrons.'
+  },
+  {
+    id: 'tea', label: 'Black Tea', correct: 'close', surprise: false,
+    feedback: 'Black tea is acidic and contains compounds that burden the kidneys over time. Regular consumption narrows the filtration pathways.'
+  },
+  {
+    id: 'berries', label: 'Fresh Blueberries', correct: 'open', surprise: false,
+    feedback: 'Berries are high in astringent compounds that clean and tone kidney tissue. They support the nephrons and help keep the highways open.'
+  }
+];
+
+let selected = null;
+let placed = {};
+
+function render() {
+  const bank = document.getElementById('bank');
+  const openZone = document.getElementById('cards-open');
+  const closeZone = document.getElementById('cards-close');
+  bank.innerHTML = ''; openZone.innerHTML = ''; closeZone.innerHTML = '';
+
+  cards.forEach(c => {
+    const loc = placed[c.id];
+    const el = document.createElement('div');
+    el.className = 'sort-card';
+    el.textContent = c.label;
+    el.dataset.id = c.id;
+
+    el.addEventListener('click', () => handleCardClick(c.id, el));
+
+    if (!loc) bank.appendChild(el);
+    else if (loc === 'open') openZone.appendChild(el);
+    else closeZone.appendChild(el);
+  });
+}
+
+function handleCardClick(id, el) {
+  if (selected === id) {
+    // deselect
+    selected = null;
+    document.querySelectorAll('.sort-card').forEach(c => c.style.borderColor = '');
+    return;
+  }
+  if (selected === null) {
+    selected = id;
+    el.style.borderColor = 'var(--amber)';
+  } else {
+    // move selected card to wherever this card's zone is
+    // If clicking a zone header instead, handled below
+    selected = null;
+    document.querySelectorAll('.sort-card').forEach(c => c.style.borderColor = '');
+  }
+}
+
+['zone-open','zone-close'].forEach(zoneId => {
+  document.getElementById(zoneId).addEventListener('click', (e) => {
+    if (!selected) return;
+    if (e.target.classList.contains('sort-card')) return;
+    const zone = zoneId === 'zone-open' ? 'open' : 'close';
+    placed[selected] = zone;
+    selected = null;
+    document.querySelectorAll('.sort-card').forEach(c => c.style.borderColor = '');
+    render();
+  });
+});
+
+document.getElementById('bank').addEventListener('click', (e) => {
+  if (!selected) return;
+  if (e.target.classList.contains('sort-card')) return;
+  delete placed[selected];
+  selected = null;
+  document.querySelectorAll('.sort-card').forEach(c => c.style.borderColor = '');
+  render();
+});
+
+document.getElementById('checkBtn').addEventListener('click', () => {
+  const allPlaced = cards.every(c => placed[c.id]);
+  if (!allPlaced) { alert('Place all cards before checking.'); return; }
+
+  let correct = 0;
+  const feedbackEl = document.getElementById('feedback');
+  feedbackEl.innerHTML = '';
+
+  cards.forEach(c => {
+    const isCorrect = placed[c.id] === c.correct;
+    if (isCorrect) correct++;
+    const type = c.surprise && !isCorrect ? 'wrong surprise' : isCorrect && c.surprise ? 'surprise' : isCorrect ? 'correct' : 'wrong';
+    const badge = isCorrect ? (c.surprise ? 'Surprise' : 'Correct') : 'Reroute';
+    const item = document.createElement('div');
+    item.className = 'feedback-item ' + (isCorrect ? (c.surprise ? 'surprise' : 'correct') : 'wrong');
+    item.innerHTML = `<div class="fb-top"><span class="fb-badge">${badge}</span><span class="fb-name">${c.label}</span></div><div class="fb-text">${c.feedback}</div>`;
+    feedbackEl.appendChild(item);
+  });
+
+  feedbackEl.style.display = 'block';
+  const banner = document.getElementById('scoreBanner');
+  banner.style.display = 'block';
+  const pct = Math.round((correct / cards.length) * 100);
+  document.getElementById('scoreText').textContent = correct + ' of ' + cards.length + ' correct — ' + pct + '%';
+  document.getElementById('scoreSubtext').textContent = pct >= 75 ? 'Strong terrain thinking. The surprises are where the real learning lives.' : 'The cards that surprised you are your most valuable ones tonight. That is the terrain model doing its work.';
+
+  document.getElementById('debriefQ').style.display = 'block';
+  banner.scrollIntoView({ behavior: 'smooth' });
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  placed = {}; selected = null;
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('feedback').innerHTML = '';
+  document.getElementById('scoreBanner').style.display = 'none';
+  document.getElementById('debriefQ').style.display = 'none';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

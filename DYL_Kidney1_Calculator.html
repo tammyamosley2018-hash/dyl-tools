@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DYL Method – Kidney Highway Load Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --soil:  #2C1A0E; --amber: #C8793A; --gold:  #E8A84A;
+    --moss:  #3D5A3E; --cream: #F9F3EA; --clay:  #D4A574;
+  }
+  body { background: var(--cream); color: var(--soil); font-family: 'Inter', sans-serif; min-height: 100vh; padding-bottom: 60px; }
+
+  header { background: var(--soil); padding: 26px 20px 20px; text-align: center; }
+  .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--clay); margin-bottom: 8px; }
+  header h1 { font-family: 'Playfair Display', serif; font-size: clamp(20px, 5vw, 30px); color: var(--cream); line-height: 1.2; }
+  header p { margin-top: 7px; font-size: 13px; color: var(--clay); }
+
+  main { max-width: 620px; margin: 0 auto; padding: 0 16px; }
+
+  .intro { background: white; border-left: 4px solid var(--amber); padding: 16px 18px; margin: 24px 0 20px; border-radius: 0 6px 6px 0; font-size: 14px; line-height: 1.6; }
+  .intro strong { color: var(--amber); }
+
+  .section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--clay); margin: 22px 0 10px; padding-left: 2px;
+  }
+
+  .check-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+  .check-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: white; border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; border: 2px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .check-item:hover { border-color: var(--clay); }
+  .check-item.checked { border-color: var(--amber); background: #fff8f2; }
+  .check-item input[type=checkbox] { margin-top: 2px; accent-color: var(--amber); width: 16px; height: 16px; flex-shrink: 0; }
+  .check-item label { font-size: 13px; line-height: 1.5; cursor: pointer; }
+
+  .calc-btn {
+    display: block; width: 100%; background: var(--amber); color: white;
+    border: none; border-radius: 8px; padding: 14px; margin: 24px 0 0;
+    font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: background 0.2s; letter-spacing: 0.02em;
+  }
+  .calc-btn:hover { background: var(--soil); }
+
+  /* RESULT */
+  #result { display: none; margin-top: 24px; }
+
+  .meter-wrap {
+    background: var(--soil); border-radius: 10px; padding: 24px 22px; margin-bottom: 16px; color: var(--cream);
+  }
+  .meter-label { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--clay); margin-bottom: 6px; }
+  .meter-tier { font-family: 'Playfair Display', serif; font-size: 26px; margin-bottom: 14px; }
+  .meter-bar-bg { height: 10px; background: rgba(255,255,255,0.15); border-radius: 5px; overflow: hidden; }
+  .meter-bar-fill { height: 100%; border-radius: 5px; transition: width 1s ease; }
+
+  .reading-card {
+    background: white; border-radius: 10px; padding: 20px 20px 16px;
+    margin-bottom: 14px; box-shadow: 0 2px 8px rgba(44,26,14,0.07);
+    border-top: 4px solid var(--amber);
+  }
+  .reading-card.clear { border-top-color: var(--moss); }
+  .reading-card.mild { border-top-color: var(--gold); }
+  .reading-card.moderate { border-top-color: var(--amber); }
+  .reading-card.heavy { border-top-color: #c05a20; }
+  .reading-card.critical { border-top-color: #b94040; }
+
+  .reading-title { font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 8px; }
+  .reading-text { font-size: 13px; line-height: 1.65; }
+
+  .terrain-read {
+    background: var(--moss); color: var(--cream); border-radius: 10px;
+    padding: 20px 20px 16px; margin-bottom: 14px;
+  }
+  .terrain-read .tr-label { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .terrain-read h3 { font-family: 'Playfair Display', serif; font-size: 17px; margin-bottom: 8px; }
+  .terrain-read p { font-size: 13px; line-height: 1.65; }
+
+  .truth-bar {
+    background: var(--amber); color: white; border-radius: 10px;
+    padding: 16px 20px; text-align: center; margin-bottom: 20px;
+    font-family: 'Playfair Display', serif; font-size: 16px; line-height: 1.4;
+  }
+
+  .reset-btn {
+    display: block; width: 100%; background: white; color: var(--soil);
+    border: 2px solid var(--clay); border-radius: 8px; padding: 12px;
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; margin-top: 8px;
+  }
+  .reset-btn:hover { border-color: var(--soil); }
+
+  footer { text-align: center; margin-top: 32px; font-size: 11px; color: var(--clay); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">DYL Method — Kidney Series Class 1</div>
+  <h1>Kidney Highway Load Calculator</h1>
+  <p>Check everything that applies to you right now</p>
+</header>
+
+<main>
+  <div class="intro">
+    This is a <strong>read, not a judgment</strong>. Check every item that is true for you in the last 30 days. Be honest — the more accurate your check-in, the more useful your reading will be.
+  </div>
+
+  <div class="section-label">Diet and Daily Habits</div>
+  <div class="check-group" id="group-diet">
+    <label class="check-item"><input type="checkbox" data-points="3"> <span>I eat meat (chicken, beef, pork, fish) most days</span></label>
+    <label class="check-item"><input type="checkbox" data-points="3"> <span>I drink coffee daily</span></label>
+    <label class="check-item"><input type="checkbox" data-points="2"> <span>I drink soda or sparkling water regularly</span></label>
+    <label class="check-item"><input type="checkbox" data-points="2"> <span>I eat chocolate or drink hot chocolate regularly</span></label>
+    <label class="check-item"><input type="checkbox" data-points="2"> <span>I drink black or green tea most days</span></label>
+    <label class="check-item"><input type="checkbox" data-points="1"> <span>I eat mostly cooked food — very little raw fruit or vegetables</span></label>
+  </div>
+
+  <div class="section-label">Body Signals</div>
+  <div class="check-group" id="group-body">
+    <label class="check-item"><input type="checkbox" data-points="3"> <span>I have puffiness or bags under my eyes most mornings</span></label>
+    <label class="check-item"><input type="checkbox" data-points="3"> <span>I have ongoing lower back ache or weakness not from injury</span></label>
+    <label class="check-item"><input type="checkbox" data-points="2"> <span>My urine is dark yellow, cloudy, or has a strong smell</span></label>
+    <label class="check-item"><input type="checkbox" data-points="2"> <span>I have swelling in my hands, feet, or ankles</span></label>
+    <label class="check-item"><input type="checkbox" data-points="2"> <span>I get headaches without a clear cause</span></label>
+    <label class="check-item"><input type="checkbox" data-points="1"> <span>I have had a UTI in the past 12 months</span></label>
+    <label class="check-item"><input type="checkbox" data-points="1"> <span>I notice my vision gets blurry or I have pressure behind my eyes</span></label>
+  </div>
+
+  <div class="section-label">Detox History</div>
+  <div class="check-group" id="group-detox">
+    <label class="check-item"><input type="checkbox" data-points="3"> <span>I have tried detox protocols but felt like nothing moved or changed</span></label>
+    <label class="check-item"><input type="checkbox" data-points="2"> <span>I drink a lot of water but still feel dehydrated or retain fluid</span></label>
+    <label class="check-item"><input type="checkbox" data-points="2"> <span>I take supplements but do not notice much improvement</span></label>
+    <label class="check-item"><input type="checkbox" data-points="1"> <span>I feel tired after eating protein-heavy meals</span></label>
+  </div>
+
+  <button class="calc-btn" id="calcBtn">Calculate My Kidney Load</button>
+
+  <div id="result">
+    <div class="meter-wrap">
+      <div class="meter-label">Kidney Highway Load</div>
+      <div class="meter-tier" id="tierName">—</div>
+      <div class="meter-bar-bg">
+        <div class="meter-bar-fill" id="meterFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="reading-card" id="readingCard">
+      <div class="reading-title" id="readingTitle">—</div>
+      <div class="reading-text" id="readingText">—</div>
+    </div>
+
+    <div class="terrain-read">
+      <div class="tr-label">Terrain Reading</div>
+      <h3 id="terrainTitle">—</h3>
+      <p id="terrainText">—</p>
+    </div>
+
+    <div class="truth-bar">No filtration, no detox. The highway has to open before anything can leave.</div>
+
+    <button class="reset-btn" id="resetBtn">Recalculate</button>
+
+    <footer>DYL Method Ministry &nbsp;|&nbsp; Kidney Series Class 1 &nbsp;|&nbsp; Quilla</footer>
+  </div>
+</main>
+
+<script>
+const tiers = [
+  {
+    name: 'Clear',
+    max: 8,
+    color: '#3D5A3E',
+    cardClass: 'clear',
+    title: 'Your kidney highways are mostly open.',
+    text: 'Your current habits and body signals suggest the nephrons are filtering reasonably well. Tonight you will learn how to protect this — because the highway can close quietly over time before the signals get loud.',
+    terrainTitle: 'Maintenance is the strategy here.',
+    terrainText: 'The key is what you are already NOT doing. Staying off the highway closers — especially meat, coffee, and soda — is what keeps this reading clear. Add astringent fruits and you are actively keeping the roads open.'
+  },
+  {
+    name: 'Mild',
+    max: 16,
+    color: '#E8A84A',
+    cardClass: 'mild',
+    title: 'Your kidney highways are narrowing.',
+    text: 'Some of those 1.5 million roads are beginning to congest. The signals are there — even if they feel minor right now. Left uncorrected, mild congestion becomes moderate, then heavy, over time.',
+    terrainTitle: 'Small corrections matter most at this stage.',
+    terrainText: 'Removing one or two highway closers this week — starting with whatever you consume most — makes a meaningful difference at the mild stage. Your body is still responsive. Take advantage of that.'
+  },
+  {
+    name: 'Moderate',
+    max: 25,
+    color: '#C8793A',
+    cardClass: 'moderate',
+    title: 'Your kidney highways are significantly congested.',
+    text: 'Multiple pathways are narrowed or closing. Your body is compensating — that is why some of these signals feel familiar and manageable. But compensation has a limit, and the body is working harder than it should to keep up.',
+    terrainTitle: 'Compensation is not correction.',
+    terrainText: 'Feeling like you have adapted to these symptoms does not mean they are resolved. It means your body is spending energy managing a clog instead of running clean. Removing highway closers and adding kidney herbs starts reopening the roads.'
+  },
+  {
+    name: 'Heavy',
+    max: 35,
+    color: '#c05a20',
+    cardClass: 'heavy',
+    title: 'Your kidney highways are heavily backed up.',
+    text: 'This level of load means the backup is affecting multiple systems. What you are experiencing as fatigue, swelling, headaches, or the sense that nothing you try is working — these are the downstream effects of a filtration system that is not keeping up.',
+    terrainTitle: 'The backup is the story behind your symptoms.',
+    terrainText: 'Almost every chronic issue in your body has a connection to what is not being filtered. Opening the kidneys is not a side project — it is the foundation. Kidney herbs, astringent fruits, and removing the highway closers are your immediate priorities.'
+  },
+  {
+    name: 'Critical',
+    max: 999,
+    color: '#b94040',
+    cardClass: 'critical',
+    title: 'Your kidney filtration system is under serious pressure.',
+    text: 'At this level, the load on your nephrons is affecting your whole internal environment. The lymph cannot drain properly. The adrenals are under pressure. The waste that should be leaving is recirculating. This is what a critical terrain burden looks like.',
+    terrainTitle: 'Filtration is the only conversation right now.',
+    terrainText: 'Before anything else — before herbs, before protocols, before supplements — the highway has to open. That means removing highway closers immediately and prioritizing astringent fruits. Nothing works downstream until the kidney drain opens.'
+  }
+];
+
+document.querySelectorAll('.check-item').forEach(item => {
+  item.addEventListener('click', (e) => {
+    const cb = item.querySelector('input[type=checkbox]');
+    if (e.target !== cb) cb.checked = !cb.checked;
+    item.classList.toggle('checked', cb.checked);
+  });
+});
+
+document.getElementById('calcBtn').addEventListener('click', () => {
+  let total = 0;
+  document.querySelectorAll('input[type=checkbox]:checked').forEach(cb => {
+    total += parseInt(cb.dataset.points);
+  });
+
+  const tier = tiers.find(t => total <= t.max) || tiers[tiers.length - 1];
+  const maxPossible = 36;
+  const pct = Math.min(Math.round((total / maxPossible) * 100), 100);
+
+  document.getElementById('tierName').textContent = tier.name + ' — ' + total + ' points';
+  document.getElementById('meterFill').style.width = '0%';
+  document.getElementById('meterFill').style.background = tier.color;
+
+  const card = document.getElementById('readingCard');
+  card.className = 'reading-card ' + tier.cardClass;
+  document.getElementById('readingTitle').textContent = tier.title;
+  document.getElementById('readingText').textContent = tier.text;
+  document.getElementById('terrainTitle').textContent = tier.terrainTitle;
+  document.getElementById('terrainText').textContent = tier.terrainText;
+
+  document.getElementById('result').style.display = 'block';
+  setTimeout(() => { document.getElementById('meterFill').style.width = pct + '%'; }, 100);
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  document.querySelectorAll('input[type=checkbox]').forEach(cb => { cb.checked = false; });
+  document.querySelectorAll('.check-item').forEach(i => i.classList.remove('checked'));
+  document.getElementById('result').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DYL Method – Kidney Highway Symptom Decoder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --soil:  #2C1A0E;
+    --amber: #C8793A;
+    --gold:  #E8A84A;
+    --moss:  #3D5A3E;
+    --cream: #F9F3EA;
+    --clay:  #D4A574;
+  }
+
+  body {
+    background: var(--cream);
+    color: var(--soil);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  header {
+    background: var(--soil);
+    padding: 28px 24px 22px;
+    text-align: center;
+  }
+  header .eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--clay);
+    margin-bottom: 8px;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 5vw, 34px);
+    color: var(--cream);
+    line-height: 1.2;
+  }
+  header .sub {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--clay);
+    line-height: 1.5;
+  }
+
+  .progress-bar-wrap {
+    background: rgba(255,255,255,0.12);
+    height: 4px;
+    margin-top: 18px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .intro-block {
+    background: white;
+    border-left: 4px solid var(--amber);
+    padding: 20px 22px;
+    margin: 28px 0 24px;
+    border-radius: 0 6px 6px 0;
+  }
+  .intro-block p {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--soil);
+  }
+  .intro-block strong { color: var(--amber); }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: white;
+    border-radius: 10px;
+    padding: 28px 24px 22px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(44,26,14,0.07);
+    display: none;
+  }
+  .question-card.active { display: block; }
+
+  .q-number {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--clay);
+    margin-bottom: 10px;
+  }
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(16px, 3.5vw, 20px);
+    color: var(--soil);
+    line-height: 1.35;
+    margin-bottom: 22px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: var(--cream);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 13px 16px;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--soil);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    line-height: 1.4;
+  }
+  .option-btn:hover { border-color: var(--amber); background: #fff8f2; }
+  .option-btn.selected { border-color: var(--amber); background: #fff3e8; font-weight: 600; }
+
+  .nav-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 18px;
+  }
+  .next-btn {
+    background: var(--amber);
+    color: white;
+    border: none;
+    border-radius: 7px;
+    padding: 11px 28px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0.4;
+    pointer-events: none;
+    transition: opacity 0.2s, background 0.2s;
+  }
+  .next-btn.ready { opacity: 1; pointer-events: all; }
+  .next-btn.ready:hover { background: var(--soil); }
+
+  /* RESULTS */
+  #results { display: none; }
+
+  .results-header {
+    background: var(--soil);
+    color: var(--cream);
+    padding: 28px 24px;
+    border-radius: 10px;
+    margin: 28px 0 20px;
+    text-align: center;
+  }
+  .results-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(20px, 4vw, 28px);
+    margin-bottom: 6px;
+  }
+  .results-header p { font-size: 13px; color: var(--clay); line-height: 1.5; }
+
+  .burden-card {
+    background: white;
+    border-radius: 10px;
+    padding: 22px 22px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(44,26,14,0.07);
+    border-top: 4px solid var(--amber);
+  }
+  .burden-card.high { border-top-color: #b94040; }
+  .burden-card.moderate { border-top-color: var(--amber); }
+  .burden-card.low { border-top-color: var(--moss); }
+
+  .burden-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--clay);
+    margin-bottom: 4px;
+  }
+  .burden-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--soil);
+    margin-bottom: 6px;
+  }
+  .burden-bar-wrap {
+    height: 6px;
+    background: #ede8e0;
+    border-radius: 3px;
+    margin: 10px 0 12px;
+    overflow: hidden;
+  }
+  .burden-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s ease;
+  }
+  .high .burden-bar-fill { background: #b94040; }
+  .moderate .burden-bar-fill { background: var(--amber); }
+  .low .burden-bar-fill { background: var(--moss); }
+
+  .burden-desc { font-size: 13px; line-height: 1.6; color: var(--soil); }
+
+  .first-correction {
+    background: var(--moss);
+    border-radius: 10px;
+    padding: 22px 22px 18px;
+    margin: 22px 0;
+    color: var(--cream);
+  }
+  .first-correction .fc-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .first-correction h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: white;
+  }
+  .first-correction p { font-size: 13px; line-height: 1.65; }
+
+  .truth-banner {
+    background: var(--amber);
+    color: white;
+    text-align: center;
+    padding: 18px 22px;
+    border-radius: 10px;
+    margin-bottom: 22px;
+  }
+  .truth-banner p {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(15px, 3vw, 18px);
+    line-height: 1.4;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 11px;
+    color: var(--clay);
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">DYL Method — Kidney Series Class 1</div>
+  <h1>Kidney Highway Symptom Decoder</h1>
+  <p class="sub">Complete this before class begins. It takes about 3 minutes.</p>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+</header>
+
+<main>
+
+  <div class="intro-block">
+    <p>Your kidneys have <strong>1.5 million pathways</strong> moving waste out of your blood every single day. When those pathways close, the trash does not disappear — it backs up. Answer each question honestly based on how you have felt over the past 30 days.</p>
+  </div>
+
+  <!-- Q1 -->
+  <div class="question-card active" id="q1" data-category="kidney">
+    <div class="q-number">Question 1 of 9</div>
+    <div class="q-text">When you wake up in the morning, do you notice puffiness or bags under your eyes?</div>
+    <div class="options">
+      <button class="option-btn" data-score="0">Rarely or never</button>
+      <button class="option-btn" data-score="1">Sometimes — maybe once or twice a week</button>
+      <button class="option-btn" data-score="2">Most mornings</button>
+      <button class="option-btn" data-score="3">Every morning without fail</button>
+    </div>
+    <div class="nav-row"><button class="next-btn" id="next1">Next</button></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card" id="q2" data-category="kidney">
+    <div class="q-number">Question 2 of 9</div>
+    <div class="q-text">How often do you feel weakness, aching, or a dull pain in your lower back — not from exercise or injury?</div>
+    <div class="options">
+      <button class="option-btn" data-score="0">I do not have lower back pain</button>
+      <button class="option-btn" data-score="1">Occasionally — comes and goes</button>
+      <button class="option-btn" data-score="2">Several times a week</button>
+      <button class="option-btn" data-score="3">It is always there to some degree</button>
+    </div>
+    <div class="nav-row"><button class="next-btn" id="next2">Next</button></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-card" id="q3" data-category="lymph">
+    <div class="q-number">Question 3 of 9</div>
+    <div class="q-text">Do you notice swelling or puffiness in your hands, feet, ankles, or legs — especially by the end of the day?</div>
+    <div class="options">
+      <button class="option-btn" data-score="0">No swelling</button>
+      <button class="option-btn" data-score="1">Mild swelling once in a while</button>
+      <button class="option-btn" data-score="2">Swelling several days a week</button>
+      <button class="option-btn" data-score="3">I swell most days and it does not fully go away</button>
+    </div>
+    <div class="nav-row"><button class="next-btn" id="next3">Next</button></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question-card" id="q4" data-category="kidney">
+    <div class="q-number">Question 4 of 9</div>
+    <div class="q-text">When you urinate, how would you describe the color and smell?</div>
+    <div class="options">
+      <button class="option-btn" data-score="0">Clear to light yellow, no strong smell</button>
+      <button class="option-btn" data-score="1">Yellow, occasionally strong smell</button>
+      <button class="option-btn" data-score="2">Dark yellow to orange, often strong smell</button>
+      <button class="option-btn" data-score="3">Very dark, cloudy, or strong smell most of the time</button>
+    </div>
+    <div class="nav-row"><button class="next-btn" id="next4">Next</button></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="question-card" id="q5" data-category="lymph">
+    <div class="q-number">Question 5 of 9</div>
+    <div class="q-text">Do you get headaches that seem to have no clear cause — not from tension, screens, or dehydration?</div>
+    <div class="options">
+      <button class="option-btn" data-score="0">Rarely or never</button>
+      <button class="option-btn" data-score="1">Once or twice a month</button>
+      <button class="option-btn" data-score="2">Weekly</button>
+      <button class="option-btn" data-score="3">Several times a week or almost daily</button>
+    </div>
+    <div class="nav-row"><button class="next-btn" id="next5">Next</button></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="question-card" id="q6" data-category="adrenal">
+    <div class="q-number">Question 6 of 9</div>
+    <div class="q-text">How is your energy level in the afternoon, roughly 2 to 4 hours after lunch?</div>
+    <div class="options">
+      <button class="option-btn" data-score="0">Steady — I do not feel a crash</button>
+      <button class="option-btn" data-score="1">Slightly low but manageable</button>
+      <button class="option-btn" data-score="2">I regularly feel a noticeable energy drop</button>
+      <button class="option-btn" data-score="3">I crash hard and need caffeine or sugar to get through it</button>
+    </div>
+    <div class="nav-row"><button class="next-btn" id="next6">Next</button></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="question-card" id="q7" data-category="kidney">
+    <div class="q-number">Question 7 of 9</div>
+    <div class="q-text">How many of the following do you consume regularly — coffee, black or green tea, soda, chocolate, or processed meat?</div>
+    <div class="options">
+      <button class="option-btn" data-score="0">None of them</button>
+      <button class="option-btn" data-score="1">One of them occasionally</button>
+      <button class="option-btn" data-score="2">Two or three of them most days</button>
+      <button class="option-btn" data-score="3">Most or all of them daily</button>
+    </div>
+    <div class="nav-row"><button class="next-btn" id="next7">Next</button></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="question-card" id="q8" data-category="lymph">
+    <div class="q-number">Question 8 of 9</div>
+    <div class="q-text">Have you noticed any changes in your vision — blurriness, pressure behind the eyes, or sensitivity to light?</div>
+    <div class="options">
+      <button class="option-btn" data-score="0">No changes</button>
+      <button class="option-btn" data-score="1">Occasional and mild</button>
+      <button class="option-btn" data-score="2">Noticeable and happens regularly</button>
+      <button class="option-btn" data-score="3">Ongoing and affecting my daily life</button>
+    </div>
+    <div class="nav-row"><button class="next-btn" id="next8">Next</button></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="question-card" id="q9" data-category="adrenal">
+    <div class="q-number">Question 9 of 9</div>
+    <div class="q-text">When you think about detoxing your body — eating clean, taking herbs, drinking more water — have you tried it and still felt like nothing was moving or changing?</div>
+    <div class="options">
+      <button class="option-btn" data-score="0">I have not tried or I have not noticed this</button>
+      <button class="option-btn" data-score="1">A little — I saw some change but it stalled</button>
+      <button class="option-btn" data-score="2">Yes — I do things right and still feel stuck</button>
+      <button class="option-btn" data-score="3">Yes — I have been doing this for a long time with little to show for it</button>
+    </div>
+    <div class="nav-row"><button class="next-btn" id="next9">Calculate My Results</button></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="results-header">
+      <h2>Your Kidney Highway Reading</h2>
+      <p>Based on your answers, here is what your body is showing you right now.</p>
+    </div>
+
+    <div class="truth-banner">
+      <p>You can eat clean, take herbs, and drink water — and still not detox. No filtration, no detox.</p>
+    </div>
+
+    <div id="kidneyCard" class="burden-card">
+      <div class="burden-label">Kidney Filtration Burden</div>
+      <div class="burden-name" id="kidneyLevel">—</div>
+      <div class="burden-bar-wrap"><div class="burden-bar-fill" id="kidneyBar" style="width:0%"></div></div>
+      <div class="burden-desc" id="kidneyDesc">—</div>
+    </div>
+
+    <div id="lymphCard" class="burden-card">
+      <div class="burden-label">Lymphatic Backup</div>
+      <div class="burden-name" id="lymphLevel">—</div>
+      <div class="burden-bar-wrap"><div class="burden-bar-fill" id="lymphBar" style="width:0%"></div></div>
+      <div class="burden-desc" id="lymphDesc">—</div>
+    </div>
+
+    <div id="adrenalCard" class="burden-card">
+      <div class="burden-label">Adrenal Stress Signal</div>
+      <div class="burden-name" id="adrenalLevel">—</div>
+      <div class="burden-bar-wrap"><div class="burden-bar-fill" id="adrenalBar" style="width:0%"></div></div>
+      <div class="burden-desc" id="adrenalDesc">—</div>
+    </div>
+
+    <div class="first-correction">
+      <div class="fc-label">Your First Correction</div>
+      <h3 id="fcTitle">—</h3>
+      <p id="fcBody">—</p>
+    </div>
+
+    <footer>DYL Method Ministry &nbsp;|&nbsp; Kidney Series Class 1 &nbsp;|&nbsp; Quilla</footer>
+  </div>
+
+</main>
+
+<script>
+  const questions = ['q1','q2','q3','q4','q5','q6','q7','q8','q9'];
+  let current = 0;
+  const scores = { kidney: 0, lymph: 0, adrenal: 0 };
+  const maxScores = { kidney: 15, lymph: 9, adrenal: 6 };
+
+  function updateProgress() {
+    const pct = (current / questions.length) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+  }
+
+  questions.forEach((qid, idx) => {
+    const card = document.getElementById(qid);
+    const cat = card.dataset.category;
+    const nextBtn = document.getElementById('next' + (idx + 1));
+    const opts = card.querySelectorAll('.option-btn');
+
+    opts.forEach(btn => {
+      btn.addEventListener('click', () => {
+        opts.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        nextBtn.classList.add('ready');
+      });
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (!nextBtn.classList.contains('ready')) return;
+      const selected = card.querySelector('.option-btn.selected');
+      scores[cat] += parseInt(selected.dataset.score);
+      card.style.display = 'none';
+      current++;
+      updateProgress();
+      if (current < questions.length) {
+        document.getElementById(questions[current]).classList.add('active');
+        document.getElementById(questions[current]).style.display = 'block';
+      } else {
+        document.getElementById('progressBar').style.width = '100%';
+        showResults();
+      }
+    });
+  });
+
+  function level(score, max) {
+    const pct = score / max;
+    if (pct <= 0.25) return 'low';
+    if (pct <= 0.60) return 'moderate';
+    return 'high';
+  }
+
+  function labelText(lvl) {
+    if (lvl === 'low') return 'Minimal Burden';
+    if (lvl === 'moderate') return 'Moderate Burden';
+    return 'High Burden';
+  }
+
+  const kidneyDescs = {
+    low: 'Your kidneys are showing early or minimal signs of congestion. The highways are mostly open. Tonight you will learn how to keep them that way.',
+    moderate: 'Your kidneys are working harder than they should. Some of those 1.5 million pathways are narrowing. The warning signals are there if you know how to read them.',
+    high: 'Your kidneys are showing significant signs of backup. The waste your body is trying to move out has fewer and fewer open roads. Tonight is the night you understand why — and what to do about it.'
+  };
+  const lymphDescs = {
+    low: 'Your lymphatic system is draining reasonably well right now. Keep the kidney highways open and it will stay that way.',
+    moderate: 'Your lymph is starting to feel the backup from the kidneys. When the kidney doors are not fully open, the lymph has nowhere to drain. You are feeling that.',
+    high: 'Your lymphatic system is significantly backed up. The swelling, the headaches, the visual changes — these are your lymph telling you the kidney doors have been closed too long.'
+  };
+  const adrenalDescs = {
+    low: 'Your adrenal stress signal is low right now. Tonight you will learn why keeping it that way depends on what is happening in your kidneys.',
+    moderate: 'Your adrenals are working harder than normal. This is often a sign that the kidneys need support. Your adrenals are trying to compensate. We will talk about this tonight.',
+    high: 'Your adrenal stress signal is high. When the kidney highways are closed, the adrenals bear the pressure. The energy crashes, the inability to move waste — these connect directly. Class 2 goes deep on this loop.'
+  };
+
+  const fcData = {
+    low:      { title: 'Learn the early signs before they become loud ones.',   body: 'Your body is not screaming yet — but it is talking. Tonight you will learn to read the early signals of kidney congestion so you can respond before the roads fully close.' },
+    moderate: { title: 'Stop closing the roads while you try to fix the backup.', body: 'The most important first step is removing what is congesting your nephrons — coffee, soda, meat, chocolate, tea. You cannot open a highway while trucks keep blocking it. Start there this week.' },
+    high:     { title: 'Your priority is filtration — everything else comes after.', body: 'No supplement, no protocol, no eating plan works without open kidney filtration. Before anything else, your body needs those 1.5 million pathways to start clearing. Tonight gives you the framework. Start removing highway closers today.' }
+  };
+
+  function showResults() {
+    document.getElementById('results').style.display = 'block';
+    document.querySelector('.intro-block') && (document.querySelector('.intro-block').style.display = 'none');
+
+    ['kidney','lymph','adrenal'].forEach(cat => {
+      const s = scores[cat];
+      const m = maxScores[cat];
+      const lvl = level(s, m);
+      const pct = Math.round((s / m) * 100);
+
+      const card = document.getElementById(cat + 'Card');
+      card.classList.remove('high','moderate','low');
+      card.classList.add(lvl);
+
+      document.getElementById(cat + 'Level').textContent = labelText(lvl);
+      document.getElementById(cat + 'Bar').style.width = pct + '%';
+
+      const descMap = { kidney: kidneyDescs, lymph: lymphDescs, adrenal: adrenalDescs };
+      document.getElementById(cat + 'Desc').textContent = descMap[cat][lvl];
+    });
+
+    const totalScore = scores.kidney + scores.lymph + scores.adrenal;
+    const totalMax = maxScores.kidney + maxScores.lymph + maxScores.adrenal;
+    const overallPct = totalScore / totalMax;
+    const fcLevel = overallPct <= 0.25 ? 'low' : overallPct <= 0.60 ? 'moderate' : 'high';
+
+    document.getElementById('fcTitle').textContent = fcData[fcLevel].title;
+    document.getElementById('fcBody').textContent = fcData[fcLevel].body;
+
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>

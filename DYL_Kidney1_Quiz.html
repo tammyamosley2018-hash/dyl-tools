@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DYL Method – Terrain Thinking Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --soil:#2C1A0E; --amber:#C8793A; --gold:#E8A84A;
+    --moss:#3D5A3E; --cream:#F9F3EA; --clay:#D4A574;
+    --red:#b94040;
+  }
+  body { background: var(--cream); color: var(--soil); font-family: 'Inter', sans-serif; min-height: 100vh; padding-bottom: 60px; }
+
+  header { background: var(--soil); padding: 26px 20px 20px; text-align: center; }
+  .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--clay); margin-bottom: 8px; }
+  header h1 { font-family: 'Playfair Display', serif; font-size: clamp(20px, 5vw, 30px); color: var(--cream); line-height: 1.2; }
+  header p { margin-top: 7px; font-size: 13px; color: var(--clay); }
+  .prog-wrap { background: rgba(255,255,255,0.12); height: 4px; margin-top: 16px; border-radius: 2px; overflow: hidden; }
+  .prog-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.4s; }
+
+  main { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+
+  .scenario-card { background: white; border-radius: 10px; padding: 26px 22px 20px; margin: 24px 0 16px; box-shadow: 0 2px 8px rgba(44,26,14,0.07); display: none; }
+  .scenario-card.active { display: block; }
+
+  .q-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .q-num { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--clay); }
+  .q-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 9px; border-radius: 4px; background: var(--cream); color: var(--amber); border: 1px solid var(--clay); }
+
+  .scenario-text { font-family: 'Playfair Display', serif; font-size: clamp(15px, 3.5vw, 18px); line-height: 1.4; color: var(--soil); margin-bottom: 8px; }
+  .scenario-sub { font-size: 13px; color: var(--clay); margin-bottom: 20px; line-height: 1.5; }
+
+  .question-prompt { font-size: 13px; font-weight: 600; color: var(--soil); margin-bottom: 14px; }
+
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    background: var(--cream); border: 2px solid transparent; border-radius: 8px;
+    padding: 13px 16px; text-align: left; font-family: 'Inter', sans-serif;
+    font-size: 13px; color: var(--soil); cursor: pointer; line-height: 1.45;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .choice-btn:hover { border-color: var(--clay); }
+  .choice-btn.selected-wrong { border-color: var(--red); background: #fff0f0; }
+  .choice-btn.correct-answer { border-color: var(--moss); background: #f0f6f0; }
+  .choice-btn.disabled { cursor: default; pointer-events: none; }
+
+  .feedback-box { display: none; background: var(--soil); color: var(--cream); border-radius: 8px; padding: 16px 18px; margin-top: 16px; font-size: 13px; line-height: 1.65; }
+  .feedback-box.show { display: block; }
+  .feedback-box strong { color: var(--gold); font-family: 'Playfair Display', serif; font-size: 15px; display: block; margin-bottom: 6px; }
+
+  .next-btn {
+    display: none; background: var(--amber); color: white; border: none; border-radius: 7px;
+    padding: 11px 26px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; margin-top: 16px;
+  }
+  .next-btn.show { display: inline-block; }
+  .next-btn:hover { background: var(--soil); }
+
+  /* RESULTS */
+  #results { display: none; margin-top: 24px; }
+  .score-block { background: var(--soil); color: var(--cream); border-radius: 10px; padding: 26px 22px; text-align: center; margin-bottom: 16px; }
+  .score-block h2 { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 6px; }
+  .score-block p { font-size: 13px; color: var(--clay); }
+  .score-bar-wrap { height: 8px; background: rgba(255,255,255,0.15); border-radius: 4px; margin: 16px 0 0; overflow: hidden; }
+  .score-bar-fill { height: 100%; background: var(--gold); border-radius: 4px; transition: width 1s ease; }
+
+  .takeaway { background: var(--moss); color: var(--cream); border-radius: 10px; padding: 20px 22px; margin-bottom: 14px; }
+  .takeaway .tk-label { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .takeaway h3 { font-family: 'Playfair Display', serif; font-size: 17px; margin-bottom: 8px; }
+  .takeaway p { font-size: 13px; line-height: 1.65; }
+
+  .truth-bar { background: var(--amber); color: white; border-radius: 10px; padding: 16px 20px; text-align: center; margin-bottom: 20px; font-family: 'Playfair Display', serif; font-size: 16px; line-height: 1.4; }
+
+  .restart-btn { display: block; width: 100%; background: white; color: var(--soil); border: 2px solid var(--clay); border-radius: 8px; padding: 12px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .restart-btn:hover { border-color: var(--soil); }
+
+  footer { text-align: center; margin-top: 32px; font-size: 11px; color: var(--clay); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">DYL Method — Kidney Series Class 1</div>
+  <h1>Terrain Thinking Quiz</h1>
+  <p>What is the body actually doing? Choose the terrain answer.</p>
+  <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
+</header>
+
+<main>
+
+  <!-- Q1 -->
+  <div class="scenario-card active" id="sc1">
+    <div class="q-meta"><span class="q-num">Scenario 1 of 5</span><span class="q-tag">Edema</span></div>
+    <div class="scenario-text">Sandra is 54. Her ankles swell every afternoon. Her doctor told her to cut salt and elevate her feet at night. She does both, but the swelling comes back every day.</div>
+    <div class="scenario-sub">The doctor is treating the fluid. But what is the body actually doing?</div>
+    <div class="question-prompt">What is the most likely terrain explanation for Sandra's daily swelling?</div>
+    <div class="choices">
+      <button class="choice-btn" data-correct="false">Her heart is too weak to pump fluid back up from her legs.</button>
+      <button class="choice-btn" data-correct="false">She is eating too much sodium even though she cut the salt shaker.</button>
+      <button class="choice-btn" data-correct="true">Her kidneys are not filtering well enough, so the lymph has nowhere to drain — the fluid backs up into the tissue.</button>
+      <button class="choice-btn" data-correct="false">She needs compression stockings to force the fluid out mechanically.</button>
+    </div>
+    <div class="feedback-box" id="fb1">
+      <strong>Terrain answer:</strong>
+      Swelling is a lymphatic backup signal. The lymph drains through the kidneys. When the kidney highways are congested, the lymph cannot exit — it pools in the tissue. Cutting salt manages the fluid load slightly, but it does not open the drain. Until the kidneys filter better, the swelling returns every day regardless of what Sandra eats.
+    </div>
+    <button class="next-btn" id="nx1">Next Scenario</button>
+  </div>
+
+  <!-- Q2 -->
+  <div class="scenario-card" id="sc2">
+    <div class="q-meta"><span class="q-num">Scenario 2 of 5</span><span class="q-tag">Back Pain</span></div>
+    <div class="scenario-text">Marcus is 47. He has had dull lower back pain for three years. Multiple MRIs showed nothing. His chiropractor adjusts him every two weeks. The relief lasts a few days, then the pain returns.</div>
+    <div class="scenario-sub">Structurally, nothing is wrong. But the pain keeps coming back. Why?</div>
+    <div class="question-prompt">From a terrain view, what is most likely happening with Marcus?</div>
+    <div class="choices">
+      <button class="choice-btn" data-correct="false">He has a hidden disc issue the MRI did not capture.</button>
+      <button class="choice-btn" data-correct="false">He needs a different type of adjustment — his pelvis is likely out of alignment.</button>
+      <button class="choice-btn" data-correct="true">His kidneys are congested. The dull back pain in the kidney region is a warning signal of filtration burden, not a structural problem.</button>
+      <button class="choice-btn" data-correct="false">The pain is stress-related and he needs to learn relaxation techniques.</button>
+    </div>
+    <div class="feedback-box" id="fb2">
+      <strong>Terrain answer:</strong>
+      Lower back pain without a structural cause is one of the primary warning signals of kidney congestion. The kidneys sit in the mid-to-lower back. When they are burdened, they signal through ache and weakness in that region. Adjustments provide temporary relief but do not address the filtration issue — which is why Marcus's pain keeps returning every few days.
+    </div>
+    <button class="next-btn" id="nx2">Next Scenario</button>
+  </div>
+
+  <!-- Q3 -->
+  <div class="scenario-card" id="sc3">
+    <div class="q-meta"><span class="q-num">Scenario 3 of 5</span><span class="q-tag">No Results</span></div>
+    <div class="scenario-text">Diane is 61. She has been eating clean for six months — organic food, green juices, no processed food. She takes several supplements. She still feels toxic, bloated, and tired. Nothing is moving.</div>
+    <div class="scenario-sub">She is doing everything right. So why is she stuck?</div>
+    <div class="question-prompt">What is the terrain explanation for why Diane's clean diet is not producing results?</div>
+    <div class="choices">
+      <button class="choice-btn" data-correct="false">She needs to be more patient — six months is not long enough.</button>
+      <button class="choice-btn" data-correct="false">She is probably missing a key supplement that would complete her protocol.</button>
+      <button class="choice-btn" data-correct="false">Her gut bacteria are imbalanced and need to be addressed first.</button>
+      <button class="choice-btn" data-correct="true">Her kidney filtration is not open. Without filtration, the waste she is stirring up has nowhere to exit — it just recirculates. No filtration, no detox.</button>
+    </div>
+    <div class="feedback-box" id="fb3">
+      <strong>Terrain answer:</strong>
+      This is the most important scenario in tonight's class. A clean diet without open kidney filtration means waste gets mobilized but cannot leave. The exit door is closed. Diane is doing the right things but skipping the most critical step — making sure the kidneys are filtering so everything she is pulling out actually exits the body.
+    </div>
+    <button class="next-btn" id="nx3">Next Scenario</button>
+  </div>
+
+  <!-- Q4 -->
+  <div class="scenario-card" id="sc4">
+    <div class="q-meta"><span class="q-num">Scenario 4 of 5</span><span class="q-tag">Bags Under Eyes</span></div>
+    <div class="scenario-text">Yolanda is 39. Every morning she wakes up with puffy bags under her eyes. She sleeps 7 to 8 hours. She does not drink alcohol. Her friends tell her she looks tired even when she feels fine.</div>
+    <div class="scenario-sub">She is well rested. But her eyes tell a different story. What is her body showing her?</div>
+    <div class="question-prompt">What do Yolanda's bags under her eyes most likely signal?</div>
+    <div class="choices">
+      <button class="choice-btn" data-correct="false">She has allergies affecting the tissue around her eyes.</button>
+      <button class="choice-btn" data-correct="true">Her kidneys are backed up. Bags under the eyes are a classic kidney filtration signal — the lymph has no exit, and the fluid shows up around the eyes overnight.</button>
+      <button class="choice-btn" data-correct="false">She needs more sleep even though she already sleeps 7 to 8 hours.</button>
+      <button class="choice-btn" data-correct="false">This is genetic — some people simply have under-eye puffiness.</button>
+    </div>
+    <div class="feedback-box" id="fb4">
+      <strong>Terrain answer:</strong>
+      Bags under the eyes are one of the most reliable visual signals of kidney congestion. Overnight, when the body is processing and the kidneys should be filtering most efficiently, a burdened filtration system cannot keep up. The lymph backs up and the fluid settles in the loose tissue under the eyes. Sleep is not the issue. The kidneys are.
+    </div>
+    <button class="next-btn" id="nx4">Next Scenario</button>
+  </div>
+
+  <!-- Q5 -->
+  <div class="scenario-card" id="sc5">
+    <div class="q-meta"><span class="q-num">Scenario 5 of 5</span><span class="q-tag">Hydration</span></div>
+    <div class="scenario-text">Kevin is 52. His doctor told him his kidneys need support and to drink more water. He has been drinking 10 to 12 glasses of water a day for three months. His lower back still aches. His urine is still dark. He feels no different.</div>
+    <div class="scenario-sub">He followed the advice. Why is it not working?</div>
+    <div class="question-prompt">From a terrain view, why is drinking more water not helping Kevin?</div>
+    <div class="choices">
+      <button class="choice-btn" data-correct="false">He needs to drink even more water — 12 glasses is still not enough.</button>
+      <button class="choice-btn" data-correct="false">The water he is drinking is probably not filtered well enough.</button>
+      <button class="choice-btn" data-correct="true">Drinking more water pushes more volume through a clogged filter — it does not open the filter. The nephrons are congested. Until you open the highway, adding more water just adds more pressure to a backed-up system.</button>
+      <button class="choice-btn" data-correct="false">He needs an electrolyte supplement to help his kidneys absorb the water properly.</button>
+    </div>
+    <div class="feedback-box" id="fb5">
+      <strong>Terrain answer:</strong>
+      You cannot flush a clogged drain by running more water through it. Kevin's nephrons are congested. Adding volume does not solve congestion — it just increases the pressure on a system that is already struggling to move. Opening the highway requires removing what is congesting the nephrons and adding astringent kidney herbs and fruits that can dissolve the buildup and reopen the filtration pathways.
+    </div>
+    <button class="next-btn" id="nx5">See My Results</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="score-block">
+      <h2 id="scoreLine">—</h2>
+      <p id="scoreDesc">—</p>
+      <div class="score-bar-wrap"><div class="score-bar-fill" id="scoreFill" style="width:0%"></div></div>
+    </div>
+
+    <div class="takeaway">
+      <div class="tk-label">Key Takeaway</div>
+      <h3 id="takeTitle">—</h3>
+      <p id="takeText">—</p>
+    </div>
+
+    <div class="truth-bar">No filtration, no detox. Open the highway. Everything else follows.</div>
+
+    <button class="restart-btn" id="restartBtn">Retake the Quiz</button>
+    <footer>DYL Method Ministry &nbsp;|&nbsp; Kidney Series Class 1 &nbsp;|&nbsp; Quilla</footer>
+  </div>
+
+</main>
+
+<script>
+  const total = 5;
+  let current = 1;
+  let score = 0;
+
+  function updateProg() {
+    document.getElementById('progFill').style.width = ((current - 1) / total * 100) + '%';
+  }
+
+  for (let i = 1; i <= total; i++) {
+    const sc = document.getElementById('sc' + i);
+    const fb = document.getElementById('fb' + i);
+    const nx = document.getElementById('nx' + i);
+    const btns = sc.querySelectorAll('.choice-btn');
+
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btns.forEach(b => b.classList.add('disabled'));
+        const isCorrect = btn.dataset.correct === 'true';
+        if (isCorrect) {
+          btn.classList.add('correct-answer');
+          score++;
+        } else {
+          btn.classList.add('selected-wrong');
+          btns.forEach(b => { if (b.dataset.correct === 'true') b.classList.add('correct-answer'); });
+        }
+        fb.classList.add('show');
+        nx.classList.add('show');
+      });
+    });
+
+    nx.addEventListener('click', () => {
+      sc.style.display = 'none';
+      current++;
+      updateProg();
+      if (current <= total) {
+        const next = document.getElementById('sc' + current);
+        next.classList.add('active');
+        next.style.display = 'block';
+        next.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        document.getElementById('progFill').style.width = '100%';
+        showResults();
+      }
+    });
+  }
+
+  function showResults() {
+    document.getElementById('results').style.display = 'block';
+    const pct = Math.round((score / total) * 100);
+    document.getElementById('scoreLine').textContent = score + ' of ' + total + ' correct';
+    document.getElementById('scoreFill').style.width = '0%';
+    setTimeout(() => { document.getElementById('scoreFill').style.width = pct + '%'; }, 100);
+
+    let desc, title, text;
+    if (score >= 4) {
+      desc = 'Your terrain thinking is strong. You are reading the body as a system, not a collection of symptoms.';
+      title = 'You are already thinking in terrain.';
+      text = 'The next step is applying it to your own body. Take what you learned tonight about the kidney highway and run it against your own warning signals. The translation from concept to self-knowledge is where the real shift happens.';
+    } else if (score >= 2) {
+      desc = 'Solid start. The scenarios you missed are the ones that will stick with you longest.';
+      title = 'The surprises are the lesson.';
+      text = 'Each scenario you got wrong reveals where the medical model is still the default answer in your thinking. That is exactly what the terrain model is designed to replace. Go back and re-read the feedback on the ones you missed — those are your gold.';
+    } else {
+      desc = 'The terrain model is a different way of reading the body entirely. It takes time to rewire.';
+      title = 'You came to the right place.';
+      text = 'Almost everything you have been taught about symptoms, water, and kidneys runs the opposite direction from the terrain view. That is not a failure — it is exactly why this class exists. Tonight\'s teaching will give you the framework. The quiz will make more sense every time you come back to it.';
+    }
+
+    document.getElementById('scoreDesc').textContent = desc;
+    document.getElementById('takeTitle').textContent = title;
+    document.getElementById('takeText').textContent = text;
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  document.getElementById('restartBtn').addEventListener('click', () => {
+    score = 0; current = 1;
+    for (let i = 1; i <= total; i++) {
+      const sc = document.getElementById('sc' + i);
+      sc.style.display = i === 1 ? 'block' : 'none';
+      sc.className = 'scenario-card' + (i === 1 ? ' active' : '');
+      sc.querySelectorAll('.choice-btn').forEach(b => { b.classList.remove('selected-wrong','correct-answer','disabled'); });
+      document.getElementById('fb' + i).classList.remove('show');
+      document.getElementById('nx' + i).classList.remove('show');
+    }
+    document.getElementById('results').style.display = 'none';
+    updateProg();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  updateProg();
+</script>
+</body>
+</html>
